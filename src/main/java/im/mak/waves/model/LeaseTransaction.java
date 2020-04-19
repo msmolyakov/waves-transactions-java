@@ -10,7 +10,8 @@ import java.util.List;
 public class LeaseTransaction extends Transaction {
 
     public static final int TYPE = 8;
-    public static int[] VERSIONS = new int[]{3, 2, 1};
+    public static final int[] VERSIONS = new int[]{3, 2, 1};
+    public static final long MIN_FEE = 100_000;
 
     private final Address recipient; //todo or alias
     private final long amount;
@@ -38,6 +39,10 @@ public class LeaseTransaction extends Transaction {
             extends TransactionBuilder<LeaseTransactionBuilder, LeaseTransaction> {
         private Address recipient;
         private long amount;
+
+        protected LeaseTransactionBuilder() {
+            super(MIN_FEE);
+        }
 
         public LeaseTransactionBuilder recipient(Address recipient) {
             this.recipient = recipient; //todo clone

@@ -79,7 +79,7 @@ public class Transaction {
 
     protected static abstract class TransactionBuilder
             <BUILDER extends TransactionBuilder<BUILDER, TX>, TX extends Transaction> {
-        protected byte chainId;
+        protected byte chainId = Waves.ChainId;
         protected PublicKey sender;
         protected long fee;
         protected long timestamp;
@@ -87,6 +87,10 @@ public class Transaction {
 
         private BUILDER builder() {
             return (BUILDER) this;
+        }
+
+        protected TransactionBuilder(long fee) {
+            this.fee = fee;
         }
 
         public BUILDER chainId(byte chainId) {

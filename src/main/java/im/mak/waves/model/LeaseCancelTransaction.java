@@ -9,7 +9,8 @@ import java.util.List;
 public class LeaseCancelTransaction extends Transaction {
 
     public static final int TYPE = 9;
-    public static int[] VERSIONS = new int[]{3, 2, 1};
+    public static final int[] VERSIONS = new int[]{3, 2, 1};
+    public static final long MIN_FEE = 100_000;
 
     private final Base58 leaseId;
 
@@ -32,6 +33,10 @@ public class LeaseCancelTransaction extends Transaction {
     public static class LeaseCancelTransactionBuilder
             extends TransactionBuilder<LeaseCancelTransactionBuilder, LeaseCancelTransaction> {
         private Base58 leaseId;
+
+        protected LeaseCancelTransactionBuilder() {
+            super(MIN_FEE);
+        }
 
         public LeaseCancelTransactionBuilder leaseId(Base58 leaseId) {
             this.leaseId = leaseId; //todo clone
