@@ -1,20 +1,28 @@
 package im.mak.waves.model;
 
+import com.wavesplatform.protobuf.transaction.TransactionOuterClass;
 import im.mak.waves.crypto.account.Address;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.crypto.base.Base58;
+import im.mak.waves.crypto.base.Base64;
 import im.mak.waves.model.common.Transaction;
+import im.mak.waves.model.proto.ProtobufSerializer;
+import im.mak.waves.model.proto.WithBody;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.List;
 
-public class LeaseTransaction extends Transaction {
+public class LeaseTransaction extends Transaction implements WithBody {
 
+    //todo checkstyle custom checks
     public static final int TYPE = 8;
     public static final int[] VERSIONS = new int[]{3, 2, 1};
     public static final long MIN_FEE = 100_000;
 
     private final Address recipient; //todo or alias
     private final long amount;
+    private TransactionOuterClass.SignedTransaction.Builder proto = null;
 
     public LeaseTransaction(Address recipient, long amount, byte chainId, PublicKey sender, long fee, long timestamp, List<Base58> proofs) {
         super(TYPE, VERSIONS[0], chainId, sender, fee, null, timestamp, proofs);
@@ -28,11 +36,26 @@ public class LeaseTransaction extends Transaction {
     }
 
     public Address recipient() {
-        return recipient;
+        return recipient; //todo clone
     }
 
     public long amount() {
         return amount;
+    }
+
+    private TransactionOuterClass.SignedTransaction.Builder proto() {
+        if (this.proto == null) this.proto = ProtobufSerializer.from(this);
+        return this.proto;
+    }
+
+    @Override
+    public Base64 bodyBytes() {
+        return new Base64(this.proto().getTransaction().toByteArray());
+    }
+
+    @Override
+    public Base64 bytes() {
+        return new Base64(this.proto().build().toByteArray());
     }
 
     public static class LeaseTransactionBuilder

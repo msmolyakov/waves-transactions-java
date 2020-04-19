@@ -25,7 +25,7 @@ public class LeaseCancelTransaction extends Transaction {
     }
 
     public Base58 leaseId() {
-        return leaseId;
+        return leaseId; //todo clone
     }
 
     //TODO hashCode, equals, toString

@@ -7,19 +7,16 @@ import java.util.List;
 
 public class Transaction {
 
-    private int type; //TODO int, short, byte?
-    private int version; //TODO int, short, byte?
-    private byte chainId;
-    private PublicKey sender;
-    private long fee;
-    private Base58 feeAssetId;
-    private long timestamp;
-    private List<Base58> proofs;
+    private final int type; //TODO int, short, byte?
+    private final int version; //TODO int, short, byte? //TODO keep init version, use latest on sign
+    private final byte chainId;
+    private final PublicKey sender;
+    private final long fee;
+    private final Base58 feeAssetId;
+    private final long timestamp;
+    private final List<Base58> proofs;
 
-    protected Transaction() {
-        feeAssetId = null;
-    }
-
+    //TODO additional constructor for all children only with mandatory fields
     protected Transaction(int type, int version, byte chainId, PublicKey sender, long fee, Base58 feeAssetId, long timestamp, List<Base58> proofs) {
         this.type = type;
         this.version = version;
@@ -85,12 +82,12 @@ public class Transaction {
         protected long timestamp;
         protected List<Base58> proofs;
 
-        private BUILDER builder() {
-            return (BUILDER) this;
-        }
-
         protected TransactionBuilder(long fee) {
             this.fee = fee;
+        }
+
+        private BUILDER builder() {
+            return (BUILDER) this;
         }
 
         public BUILDER chainId(byte chainId) {
