@@ -9,8 +9,6 @@ import im.mak.waves.model.common.Transaction;
 import im.mak.waves.model.proto.ProtobufSerializer;
 import im.mak.waves.model.proto.WithBody;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.List;
 
 public class LeaseTransaction extends Transaction implements WithBody {
@@ -44,7 +42,7 @@ public class LeaseTransaction extends Transaction implements WithBody {
     }
 
     private TransactionOuterClass.SignedTransaction.Builder proto() {
-        if (this.proto == null) this.proto = ProtobufSerializer.from(this);
+        if (this.proto == null) this.proto = ProtobufSerializer.serialize(this);
         return this.proto;
     }
 

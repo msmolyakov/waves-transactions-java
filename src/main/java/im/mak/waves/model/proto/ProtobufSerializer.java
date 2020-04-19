@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class ProtobufSerializer {
 
-    public static TransactionOuterClass.SignedTransaction.Builder from(im.mak.waves.model.common.Transaction tx) {
+    public static TransactionOuterClass.SignedTransaction.Builder serialize(im.mak.waves.model.common.Transaction tx) {
         TransactionOuterClass.Transaction.Builder protoBuilder = TransactionOuterClass.Transaction.newBuilder()
                 .setVersion(LeaseTransaction.VERSIONS[0]) //todo а если создали объект со старой версией и с пруфом?
                 .setChainId(tx.chainId())
