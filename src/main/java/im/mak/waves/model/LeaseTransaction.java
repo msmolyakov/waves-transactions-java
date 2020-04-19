@@ -1,36 +1,29 @@
 package im.mak.waves.model;
 
-import im.mak.waves.crypto.Bytes;
 import im.mak.waves.crypto.account.Address;
+import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.crypto.base.Base58;
-import im.mak.waves.model.common.Chained;
 import im.mak.waves.model.common.Transaction;
 
-public class LeaseTransaction extends Transaction implements Chained {
+import java.util.List;
+
+public class LeaseTransaction extends Transaction {
 
     public static final int TYPE = 8;
+    public static int[] VERSIONS = new int[]{3, 2, 1};
 
-    private final Address recipient;
+    private final Address recipient; //todo or alias
     private final long amount;
-    private final byte chainId;
 
-    public LeaseTransaction(Address recipient, long amount, long fee, long timestamp, byte chainId) {
-        this(recipient, amount, fee, timestamp, chainId, new Base58[0], new Base58(Bytes.empty()));
-    }
+    public LeaseTransaction(Address recipient, long amount, byte chainId, PublicKey sender, long fee, long timestamp, List<Base58> proofs) {
+        super(TYPE, VERSIONS[0], chainId, sender, fee, null, timestamp, proofs);
 
-    public LeaseTransaction(Address recipient, long amount, long fee, long timestamp, byte chainId, Base58[] proofs) {
-        this(recipient, amount, fee, timestamp, chainId, proofs, new Base58(Bytes.empty()));
-    }
-
-    public LeaseTransaction(Address recipient, long amount, long fee, long timestamp, byte chainId, Base58 id) {
-        this(recipient, amount, fee, timestamp, chainId, new Base58[0], id);
-    }
-
-    public LeaseTransaction(Address recipient, long amount, long fee, long timestamp, byte chainId, Base58[] proofs, Base58 id) {
-        super(TYPE, fee, new Base58(Bytes.empty()), timestamp, proofs, id);
         this.recipient = recipient;
         this.amount = amount;
-        this.chainId = chainId;
+    }
+
+    public static LeaseTransactionBuilder builder() {
+        return new LeaseTransactionBuilder();
     }
 
     public Address recipient() {
@@ -41,16 +34,24 @@ public class LeaseTransaction extends Transaction implements Chained {
         return amount;
     }
 
-    @Override
-    public byte chainId() {
-        return chainId;
-    }
+    public static class LeaseTransactionBuilder
+            extends TransactionBuilder<LeaseTransactionBuilder, LeaseTransaction> {
+        private Address recipient;
+        private long amount;
 
-    @Override
-    public byte[] bodyBytes() {
-        return null;
-    }
+        public LeaseTransactionBuilder recipient(Address recipient) {
+            this.recipient = recipient; //todo clone
+            return this;
+        }
 
-    //TODO hashCode, equals, toString
+        public LeaseTransactionBuilder amount(long amount) {
+            this.amount = amount;
+            return this;
+        }
+
+        protected LeaseTransaction buildInternal() {
+            return new LeaseTransaction(recipient, amount, chainId, sender, fee, timestamp, proofs);
+        }
+    }
 
 }
