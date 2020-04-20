@@ -13,7 +13,7 @@ public class ProtobufSerializer {
 
     public static TransactionOuterClass.SignedTransaction.Builder serialize(Transaction tx) {
         TransactionOuterClass.Transaction.Builder protoBuilder = TransactionOuterClass.Transaction.newBuilder()
-                .setVersion(LeaseTransaction.VERSIONS[0]) //todo а если создали объект со старой версией и с пруфом?
+                .setVersion(LeaseTransaction.VERSIONS[0]) //todo а если создали объект из старой версии и с пруфом?
                 .setChainId(tx.chainId())
                 .setSenderPublicKey(ByteString.copyFrom(tx.sender().bytes()))
                 .setFee(AmountOuterClass.Amount.newBuilder()
@@ -26,7 +26,8 @@ public class ProtobufSerializer {
             LeaseTransaction ltx = (LeaseTransaction) tx;
             protoBuilder.setLease(TransactionOuterClass.LeaseTransactionData.newBuilder()
                     .setRecipient(RecipientOuterClass.Recipient.newBuilder()
-                            .setPublicKeyHash() //todo PublicKeyHash??? А как адрес?
+                            .setPublicKeyHash(ByteString.copyFrom(
+                                    ltx.recipient().publicKeyHash()))
                             .build())
                     .setAmount(ltx.amount())
                     .build());
