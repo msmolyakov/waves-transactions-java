@@ -5,8 +5,8 @@ import im.mak.waves.crypto.account.Address;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.crypto.base.Base58;
 import im.mak.waves.crypto.base.Base64;
-import im.mak.waves.transactions.serializers.ProtobufSerializer;
 import im.mak.waves.transactions.common.WithBody;
+import im.mak.waves.transactions.serializers.ProtobufSerializer;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class LeaseTransaction extends Transaction implements WithBody {
         return amount;
     }
 
-    private TransactionOuterClass.SignedTransaction.Builder proto() {
+    private TransactionOuterClass.SignedTransaction.Builder proto() { //todo а если добавили пруфы?
         if (this.proto == null) this.proto = ProtobufSerializer.serialize(this);
         return this.proto;
     }
