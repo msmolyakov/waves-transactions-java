@@ -117,10 +117,10 @@ public class Transaction {
         }
 
         public TX build() {
-            return buildInternal();
+            return _build();
         }
 
-        protected abstract TX buildInternal();
+        protected abstract TX _build();
     }
 
 }

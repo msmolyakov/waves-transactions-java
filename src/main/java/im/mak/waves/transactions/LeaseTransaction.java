@@ -74,7 +74,7 @@ public class LeaseTransaction extends Transaction implements WithBody {
             return this;
         }
 
-        protected LeaseTransaction buildInternal() {
+        protected LeaseTransaction _build() {
             return new LeaseTransaction(recipient, amount, chainId, sender, fee, timestamp, proofs);
         }
     }

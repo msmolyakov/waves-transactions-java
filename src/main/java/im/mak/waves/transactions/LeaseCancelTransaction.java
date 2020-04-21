@@ -42,7 +42,7 @@ public class LeaseCancelTransaction extends Transaction {
             return this;
         }
 
-        protected LeaseCancelTransaction buildInternal() {
+        protected LeaseCancelTransaction _build() {
             return new LeaseCancelTransaction(leaseId, chainId, sender, fee, timestamp, proofs);
         }
     }
