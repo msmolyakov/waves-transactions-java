@@ -1,12 +1,17 @@
 package im.mak.waves.transactions;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import im.mak.waves.crypto.Bytes;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.crypto.base.Base58;
+import im.mak.waves.transactions.common.Serialized;
 import im.mak.waves.transactions.common.Waves;
+import im.mak.waves.transactions.serializers.BinarySerializer;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Transaction {
+public class Transaction implements Serialized {
 
     private final int type; //TODO int, short, byte?
     private final int version; //TODO int, short, byte? //TODO keep init version, use latest on sign
@@ -16,17 +21,18 @@ public class Transaction {
     private final Base58 feeAssetId;
     private final long timestamp;
     private final List<Base58> proofs;
+    private byte[] bodyBytes;
 
     //TODO additional constructor for all children only with mandatory fields
     protected Transaction(int type, int version, byte chainId, PublicKey sender, long fee, Base58 feeAssetId, long timestamp, List<Base58> proofs) {
         this.type = type;
         this.version = version;
         this.chainId = chainId;
-        this.sender = sender;
+        this.sender = sender; //todo if null?
         this.fee = fee;
-        this.feeAssetId = feeAssetId;
+        this.feeAssetId = feeAssetId == null ? new Base58(Bytes.empty()) : feeAssetId;
         this.timestamp = timestamp;
-        this.proofs = proofs;
+        this.proofs = proofs == null ? new ArrayList<>() : proofs;
     }
 
     public int type() {
@@ -59,6 +65,18 @@ public class Transaction {
 
     public List<Base58> proofs() {
         return proofs; //todo clone
+    }
+
+    @Override
+    public byte[] bodyBytes() {
+        if (this.bodyBytes == null)
+            this.bodyBytes = BinarySerializer.bodyBytes(this);
+        return this.bodyBytes;
+    }
+
+    @Override
+    public byte[] toBytes() throws InvalidProtocolBufferException {
+        return BinarySerializer.bytes(this);
     }
 
     //TODO implement clone in crypto lib

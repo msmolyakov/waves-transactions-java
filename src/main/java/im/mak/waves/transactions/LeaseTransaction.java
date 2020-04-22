@@ -1,16 +1,14 @@
 package im.mak.waves.transactions;
 
-import com.wavesplatform.protobuf.transaction.TransactionOuterClass;
+import im.mak.waves.crypto.Bytes;
 import im.mak.waves.crypto.account.Address;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.crypto.base.Base58;
-import im.mak.waves.crypto.base.Base64;
-import im.mak.waves.transactions.common.WithBody;
-import im.mak.waves.transactions.serializers.ProtobufSerializer;
+import im.mak.waves.transactions.common.Serialized;
 
 import java.util.List;
 
-public class LeaseTransaction extends Transaction implements WithBody {
+public class LeaseTransaction extends Transaction implements Serialized {
 
     //todo checkstyle custom checks
     public static final int TYPE = 8;
@@ -19,10 +17,9 @@ public class LeaseTransaction extends Transaction implements WithBody {
 
     private final Address recipient; //todo or alias
     private final long amount;
-    private TransactionOuterClass.SignedTransaction.Builder proto = null;
 
     public LeaseTransaction(Address recipient, long amount, byte chainId, PublicKey sender, long fee, long timestamp, List<Base58> proofs) {
-        super(TYPE, VERSIONS[0], chainId, sender, fee, null, timestamp, proofs);
+        super(TYPE, VERSIONS[0], chainId, sender, fee, new Base58(Bytes.empty()), timestamp, proofs);
 
         this.recipient = recipient;
         this.amount = amount;
@@ -38,21 +35,6 @@ public class LeaseTransaction extends Transaction implements WithBody {
 
     public long amount() {
         return amount;
-    }
-
-    private TransactionOuterClass.SignedTransaction.Builder proto() { //todo а если добавили пруфы?
-        if (this.proto == null) this.proto = ProtobufSerializer.serialize(this);
-        return this.proto;
-    }
-
-    @Override
-    public Base64 bodyBytes() {
-        return new Base64(this.proto().getTransaction().toByteArray());
-    }
-
-    @Override
-    public Base64 bytes() {
-        return new Base64(this.proto().build().toByteArray());
     }
 
     public static class LeaseTransactionBuilder
