@@ -81,9 +81,8 @@ public class Transaction implements Serialized {
 
     //TODO implement clone in crypto lib
     //TODO this+children: hashCode, equals, toString
-    //TODO children: implements WithBody
     //TODO basic validations in builder/constructor
-    //TODO typed fields? AssetId, Recipient and etc
+    //TODO typed fields? AssetId, Recipient, Proofs and etc
 //    public Base58 sign(Seed seed) { //todo maybe move to WithBody and rename to Signed
 /*        return sign(seed.privateKey());
     }

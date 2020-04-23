@@ -2,6 +2,7 @@ package im.mak.waves.transactions;
 
 import im.mak.waves.crypto.account.Address;
 import im.mak.waves.crypto.account.PublicKey;
+import im.mak.waves.crypto.account.Seed;
 import im.mak.waves.crypto.base.Base58;
 import im.mak.waves.crypto.base.Base64;
 import im.mak.waves.transactions.common.Waves;
