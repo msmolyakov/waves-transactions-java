@@ -83,18 +83,11 @@ public class Transaction implements Serialized {
     //TODO this+children: hashCode, equals, toString
     //TODO basic validations in builder/constructor
     //TODO typed fields? AssetId, Recipient, Proofs and etc
-//    public Base58 sign(Seed seed) { //todo maybe move to WithBody and rename to Signed
-/*        return sign(seed.privateKey());
-    }
-
-    public Base58 sign(PrivateKey privateKey) {
-        //TODO add/update proofs
-        return new Base58(privateKey.sign(bodyBytes()));
-    }*/
 
     protected static abstract class TransactionBuilder
             <BUILDER extends TransactionBuilder<BUILDER, TX>, TX extends Transaction> {
-        protected byte chainId = Waves.ChainId;
+        protected int version;
+        protected byte chainId = Waves.chainId;
         protected PublicKey sender;
         protected long fee;
         protected long timestamp;
@@ -106,6 +99,11 @@ public class Transaction implements Serialized {
 
         private BUILDER builder() {
             return (BUILDER) this;
+        }
+
+        protected BUILDER version(int version) {
+            this.version = version;
+            return builder();
         }
 
         public BUILDER chainId(byte chainId) {
