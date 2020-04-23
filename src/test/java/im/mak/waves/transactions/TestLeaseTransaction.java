@@ -1,8 +1,9 @@
 package im.mak.waves.transactions;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import im.mak.waves.crypto.Bytes;
 import im.mak.waves.crypto.account.Address;
 import im.mak.waves.crypto.account.PublicKey;
-import im.mak.waves.crypto.account.Seed;
 import im.mak.waves.crypto.base.Base58;
 import im.mak.waves.crypto.base.Base64;
 import im.mak.waves.transactions.common.Waves;
@@ -81,7 +82,7 @@ public class TestLeaseTransaction {
     }
 
     @Test
-    void protoV3__serializeWithUpdatedProofs() {
+    void protoV3__serialize__canUpdateProofs() {
         LeaseTransaction tx = LeaseTransaction.builder()
                 .recipient(recipient)
                 .amount(100)
@@ -98,6 +99,22 @@ public class TestLeaseTransaction {
                 () -> assertThat(tx.bodyBytes()).isEqualTo(originTxBodyBytes),
                 () -> assertThat(tx.toBytes()).isNotEqualTo(originTxBytes)
         );
+    }
+
+    @Test
+    void protoV3_serializeWithoutProofs__equalToDescriptorPlusBodyBytes() throws InvalidProtocolBufferException {
+        LeaseTransaction tx = LeaseTransaction.builder()
+                .recipient(recipient)
+                .amount(100)
+                .chainId(Waves.ChainId)
+                .fee(LeaseTransaction.MIN_FEE)
+                .timestamp(1587500468252L)
+                .sender(sender)
+                .build();
+
+        byte[] fieldNumberAndDescriptor = Bytes.of((byte) 10, (byte) 80);
+        assertThat(tx.toBytes()).isEqualTo(Bytes.concat(
+                fieldNumberAndDescriptor, tx.bodyBytes()));
     }
 
 }
