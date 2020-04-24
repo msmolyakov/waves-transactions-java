@@ -25,7 +25,7 @@ public class LeaseTransaction extends Transaction {
     //todo move as universal method to Transaction or maybe interface
     public static LeaseTransaction from(byte[] bytes) throws InvalidProtocolBufferException {
         TransactionOuterClass.SignedTransaction signed = TransactionOuterClass.SignedTransaction.parseFrom(bytes);
-        if (signed.hasTransaction() || !signed.getTransaction().hasLease())
+        if (!signed.hasTransaction() || !signed.getTransaction().hasLease())
             throw new InvalidProtocolBufferException("Parsed transaction is not a LeaseTransaction");
 
         TransactionOuterClass.Transaction tx = signed.getTransaction();
@@ -43,7 +43,7 @@ public class LeaseTransaction extends Transaction {
                 ))) //todo what if alias?
                 .amount(lease.getAmount())
                 .sender(PublicKey.as(tx.getSenderPublicKey().toByteArray()))
-                .fee(tx.getFee().getAmount()) //todo validate feeAssetId
+                .fee(tx.getFee().getAmount()) //todo validate feeAssetId (must be null)
                 .timestamp(tx.getTimestamp())
                 .proofs(signed.getProofsList().stream().map(p -> new Base58(p.toByteArray())).collect(toList()))
                 .build();

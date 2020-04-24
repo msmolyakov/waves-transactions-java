@@ -13,19 +13,20 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 public class TestLeaseTransaction {
 
-    byte[] originTxBodyBytes = Base64.decode("CFISII2Pso3AdXwKxUYtumBGAOwXiwd7VICSuiPRijFoYzd0GgQQoI0GIJyQm/OZLigD4gYaChYKFCeJyYXTXWfWhdwOmLovIW2Gvo+8EGQ=");
-    byte[] originTxBytes = Base64.decode("ClAIUhIgjY+yjcB1fArFRi26YEYA7BeLB3tUgJK6I9GKMWhjN3QaBBCgjQYgnJCb85kuKAPiBhoKFgoUJ4nJhdNdZ9aF3A6Yui8hbYa+j7wQZBJAVjTJg2InL0or364uAkjG2TPNpb+ljusPjgNipnfrBwGkw3vqPuQD3OzANKIBTz35D1OTbwi8v49aWu72KZLmhQ==");
-    byte[] originId = Base58.decode("");
-    long amount = 100;
+    byte[] originTxBodyBytes = Base64.decode("CFISII2Pso3AdXwKxUYtumBGAOwXiwd7VICSuiPRijFoYzd0GgQQoI0GIJyQm/OZLigD4gYiChYKFCeJyYXTXWfWhdwOmLovIW2Gvo+8EP//////////fw==");
+    byte[] originTxBytes = Base64.decode("ClgIUhIgjY+yjcB1fArFRi26YEYA7BeLB3tUgJK6I9GKMWhjN3QaBBCgjQYgnJCb85kuKAPiBiIKFgoUJ4nJhdNdZ9aF3A6Yui8hbYa+j7wQ//////////9/EkAcb3c/UoHj5Cm5xcJZ5cf3dHbfswtfxPpujeBJq5b3M6G6hAy3htBhujUcc3X613p020xfat3whx07IxGqDeaM");
+    byte[] originId = Base58.decode("D2H9GTZ1F6fViJibjimJd62prJCh3WhXpwa8gkf3JTfd");
+    long maxAmount = Long.MAX_VALUE;
     long timestamp = 1587500468252L;
-    Base58 proof = new Base58("2ixyxSr8BUdxw4fSUT1BBAQT6QhD9mF1VBSZ91nC7fvhzfmuAtY67qnyNW15CY3So87wvxU9yi4Rb1dVbhU8Bp5a");
-    String json = "{\"senderPublicKey\":\"AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV\",\"amount\":100,\"sender\":\"3MsX9C2MzzxE4ySF5aYcJoaiPfkyxZMg4cW\",\"feeAssetId\":null,\"chainId\":82,\"proofs\":[\"2ixyxSr8BUdxw4fSUT1BBAQT6QhD9mF1VBSZ91nC7fvhzfmuAtY67qnyNW15CY3So87wvxU9yi4Rb1dVbhU8Bp5a\"],\"fee\":100000,\"recipient\":\"3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF\",\"id\":\"NFr9JJWkYH8gT6s8bELfusL5ksWKHu9SDGuZtoMptih\",\"type\":8,\"version\":3,\"timestamp\":1587500468252}";
+    Base58 proof = new Base58("ZyV6cBzUFEBQ6wDyzj689KUBXSTahGeoec6GTonM9CJWc9LMEHXy7d51f4Mysk78zVnkrjuF539pvEJBV2uL4nP");
+    String json = "{\"senderPublicKey\":\"AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV\",\"amount\":9223372036854775807,\"sender\":\"3MsX9C2MzzxE4ySF5aYcJoaiPfkyxZMg4cW\",\"feeAssetId\":null,\"chainId\":82,\"proofs\":[\"ZyV6cBzUFEBQ6wDyzj689KUBXSTahGeoec6GTonM9CJWc9LMEHXy7d51f4Mysk78zVnkrjuF539pvEJBV2uL4nP\"],\"fee\":100000,\"recipient\":\"3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF\",\"id\":\"D2H9GTZ1F6fViJibjimJd62prJCh3WhXpwa8gkf3JTfd\",\"type\":8,\"version\":3,\"timestamp\":1587500468252}";
 
     PublicKey sender = PublicKey.as("AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV");
     Address recipient = sender.address(Waves.chainId); // 3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF
@@ -36,10 +37,15 @@ public class TestLeaseTransaction {
     }
 
     @Test
+    void base64() {
+        System.out.println(Base64.encode("Привет, мир!".getBytes(UTF_8)));
+    }
+
+    @Test
     void protoV3__canSerialize() {
         LeaseTransaction txSigned = LeaseTransaction.builder()
                 .recipient(recipient)
-                .amount(amount)
+                .amount(maxAmount)
                 .chainId(Waves.chainId)
                 .fee(LeaseTransaction.MIN_FEE)
                 .timestamp(timestamp)
@@ -49,7 +55,7 @@ public class TestLeaseTransaction {
 
         LeaseTransaction txSignedAfterCreation = LeaseTransaction.builder()
                 .recipient(recipient)
-                .amount(amount)
+                .amount(maxAmount)
                 .chainId(Waves.chainId)
                 .fee(LeaseTransaction.MIN_FEE)
                 .timestamp(timestamp)
@@ -72,7 +78,7 @@ public class TestLeaseTransaction {
     void protoV3_withAlias__canSerialize() {
         LeaseTransaction tx = LeaseTransaction.builder()
                 .recipient(recipient) //todo alias
-                .amount(amount)
+                .amount(maxAmount)
                 .chainId(Waves.chainId)
                 .fee(LeaseTransaction.MIN_FEE)
                 .timestamp(timestamp)
@@ -91,7 +97,7 @@ public class TestLeaseTransaction {
     void protoV3__serialize__canUpdateProofs() {
         LeaseTransaction tx = LeaseTransaction.builder()
                 .recipient(recipient)
-                .amount(amount)
+                .amount(maxAmount)
                 .chainId(Waves.chainId)
                 .fee(LeaseTransaction.MIN_FEE)
                 .timestamp(timestamp)
@@ -111,14 +117,14 @@ public class TestLeaseTransaction {
     void protoV3_serializeWithoutProofs__equalToDescriptorPlusBodyBytes() throws InvalidProtocolBufferException {
         LeaseTransaction tx = LeaseTransaction.builder()
                 .recipient(recipient)
-                .amount(amount)
+                .amount(maxAmount)
                 .chainId(Waves.chainId)
                 .fee(LeaseTransaction.MIN_FEE)
                 .timestamp(timestamp)
                 .sender(sender)
                 .build();
 
-        byte[] fieldNumberAndDescriptor = Bytes.of((byte) 10, (byte) 80);
+        byte[] fieldNumberAndDescriptor = Bytes.of((byte) 10, (byte) 88);
         assertThat(tx.toBytes()).isEqualTo(Bytes.concat(
                 fieldNumberAndDescriptor, tx.bodyBytes()));
         assertThat(tx.id()).isEqualTo(originId);
@@ -135,7 +141,7 @@ public class TestLeaseTransaction {
                 () -> assertThat(tx.chainId()).isEqualTo(Waves.chainId),
                 () -> assertThat(tx.sender()).isEqualTo(sender),
                 () -> assertThat(tx.recipient()).isEqualTo(recipient),
-                () -> assertThat(tx.amount()).isEqualTo(amount),
+                () -> assertThat(tx.amount()).isEqualTo(maxAmount),
                 () -> assertThat(tx.fee()).isEqualTo(LeaseTransaction.MIN_FEE),
                 () -> assertThat(tx.feeAssetId()).isEqualTo(new Base58(Bytes.empty())),
                 () -> assertThat(tx.timestamp()).isEqualTo(timestamp),
