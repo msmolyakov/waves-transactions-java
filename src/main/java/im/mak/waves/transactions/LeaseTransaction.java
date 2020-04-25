@@ -7,6 +7,7 @@ import im.mak.waves.crypto.Hash;
 import im.mak.waves.crypto.account.Address;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.crypto.base.Base58;
+import im.mak.waves.transactions.common.Recipient;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class LeaseTransaction extends Transaction {
     public static final int[] VERSIONS = new int[]{3, 2, 1};
     public static final long MIN_FEE = 100_000;
 
-    private final Address recipient; //todo or alias
+    private final Recipient recipient;
     private final long amount;
 
     //todo move as universal method to Transaction or maybe interface
@@ -37,10 +38,8 @@ public class LeaseTransaction extends Transaction {
         return builder()
                 .version(tx.getVersion())
                 .chainId((byte) tx.getChainId())
-                .recipient(Address.as(Bytes.concat(
-                        addressPart,
-                        Bytes.chunk(Hash.secureHash(addressPart), 4)[0]
-                ))) //todo what if alias?
+                .recipient(Recipient.as(Address.fromPart( //todo what if alias?
+                        lease.getRecipient().getPublicKeyHash().toByteArray(), (byte) tx.getChainId())))
                 .amount(lease.getAmount())
                 .sender(PublicKey.as(tx.getSenderPublicKey().toByteArray()))
                 .fee(tx.getFee().getAmount()) //todo validate feeAssetId (must be null)
@@ -49,7 +48,7 @@ public class LeaseTransaction extends Transaction {
                 .build();
     }
 
-    public LeaseTransaction(Address recipient, long amount, byte chainId, PublicKey sender, long fee, long timestamp, List<Base58> proofs) {
+    public LeaseTransaction(Recipient recipient, long amount, byte chainId, PublicKey sender, long fee, long timestamp, List<Base58> proofs) {
         super(TYPE, VERSIONS[0], chainId, sender, fee, new Base58(Bytes.empty()), timestamp, proofs);
 
         this.recipient = recipient;
@@ -60,7 +59,7 @@ public class LeaseTransaction extends Transaction {
         return new LeaseTransactionBuilder();
     }
 
-    public Address recipient() {
+    public Recipient recipient() {
         return recipient; //todo clone
     }
 
@@ -70,14 +69,14 @@ public class LeaseTransaction extends Transaction {
 
     public static class LeaseTransactionBuilder
             extends TransactionBuilder<LeaseTransactionBuilder, LeaseTransaction> {
-        private Address recipient;
+        private Recipient recipient;
         private long amount;
 
         protected LeaseTransactionBuilder() {
             super(MIN_FEE);
         }
 
-        public LeaseTransactionBuilder recipient(Address recipient) {
+        public LeaseTransactionBuilder recipient(Recipient recipient) {
             this.recipient = recipient; //todo clone
             return this;
         }

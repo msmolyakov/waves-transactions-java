@@ -26,11 +26,12 @@ public class BinarySerializer {
 
         if (tx instanceof LeaseTransaction) {
             LeaseTransaction ltx = (LeaseTransaction) tx;
+            RecipientOuterClass.Recipient recipient = ltx.recipient().isAlias()
+                    ? RecipientOuterClass.Recipient.newBuilder().setAlias(ltx.recipient().alias().value()).build()
+                    : RecipientOuterClass.Recipient.newBuilder().setPublicKeyHash(ByteString.copyFrom(
+                            ltx.recipient().address().publicKeyHash())).build();
             protoBuilder.setLease(TransactionOuterClass.LeaseTransactionData.newBuilder()
-                    .setRecipient(RecipientOuterClass.Recipient.newBuilder()
-                            .setPublicKeyHash(ByteString.copyFrom(
-                                    ltx.recipient().publicKeyHash()))
-                            .build())
+                    .setRecipient(recipient)
                     .setAmount(ltx.amount())
                     .build());
         } //todo other types
