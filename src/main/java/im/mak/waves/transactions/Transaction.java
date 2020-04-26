@@ -2,20 +2,19 @@ package im.mak.waves.transactions;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import im.mak.waves.crypto.account.PublicKey;
-import im.mak.waves.crypto.base.Base58;
 import im.mak.waves.transactions.common.Asset;
 import im.mak.waves.transactions.common.Proof;
-import im.mak.waves.transactions.common.Serialized;
+import im.mak.waves.transactions.common.WithBody;
 import im.mak.waves.transactions.common.Waves;
 import im.mak.waves.transactions.serializers.BinarySerializer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Transaction implements Serialized {
+public class Transaction implements WithBody {
 
     private final int type; //TODO int, short, byte?
-    private final int version; //TODO int, short, byte? //TODO keep init version, use latest on sign
+    private final int version; //TODO int, short, byte?
     private final byte chainId;
     private final PublicKey sender;
     private final long fee;
@@ -24,12 +23,16 @@ public class Transaction implements Serialized {
     private final List<Proof> proofs;
     private byte[] bodyBytes;
 
+    public static Transaction fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
+        return BinarySerializer.fromBytes(bytes);
+    }
+
     //TODO additional constructor for all children only with mandatory fields
     protected Transaction(int type, int version, byte chainId, PublicKey sender, long fee, Asset feeAsset, long timestamp, List<Proof> proofs) {
         this.type = type;
         this.version = version;
         this.chainId = chainId;
-        this.sender = sender; //todo if null?
+        this.sender = sender; //todo if null (genesisTx)?
         this.fee = fee;
         this.feeAsset = feeAsset;
         this.timestamp = timestamp;
@@ -102,7 +105,7 @@ public class Transaction implements Serialized {
             return (BUILDER) this;
         }
 
-        protected BUILDER version(int version) {
+        public BUILDER version(int version) {
             this.version = version;
             return builder();
         }

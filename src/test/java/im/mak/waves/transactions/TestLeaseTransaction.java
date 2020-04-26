@@ -159,7 +159,7 @@ public class TestLeaseTransaction {
 
     @Test
     void protoV3__canDeserialize() throws InvalidProtocolBufferException {
-        LeaseTransaction tx = LeaseTransaction.from(originTxBytes);
+        LeaseTransaction tx = LeaseTransaction.fromBytes(originTxBytes);
 
         assertAll("check tx fields",
                 () -> assertThat(tx.id()).isEqualTo(originId),
@@ -187,7 +187,7 @@ public class TestLeaseTransaction {
         Alias maxAlias = Alias.as("_rich-account.with@30_symbols_");
         Proof proof = new Proof("2FoDNbHLGXB5iyd23mG7cTRhYXPawSJJPftwFSsQA9jX89CX72EtkC8xqsXsQhHHrLTCSubR9rz5569KUwmCWCFS");
 
-        LeaseTransaction tx = LeaseTransaction.from(expectedTxBytes);
+        LeaseTransaction tx = LeaseTransaction.fromBytes(expectedTxBytes);
 
         assertAll("check tx fields",
                 () -> assertThat(tx.id()).isEqualTo(expectedId),
