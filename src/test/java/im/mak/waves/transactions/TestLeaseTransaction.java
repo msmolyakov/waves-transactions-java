@@ -4,7 +4,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import im.mak.waves.crypto.Bytes;
 import im.mak.waves.crypto.account.Address;
 import im.mak.waves.crypto.account.PublicKey;
-import im.mak.waves.crypto.base.Base58;
 import im.mak.waves.crypto.base.Base64;
 import im.mak.waves.transactions.common.*;
 import org.junit.jupiter.api.BeforeAll;
@@ -105,25 +104,6 @@ public class TestLeaseTransaction {
     }
 
     @Test
-    void protoV3__canDeserialize() throws InvalidProtocolBufferException {
-        LeaseTransaction tx = LeaseTransaction.from(originTxBytes);
-
-        assertAll("check tx fields",
-                () -> assertThat(tx.id()).isEqualTo(originId),
-                () -> assertThat(tx.type()).isEqualTo(LeaseTransaction.TYPE),
-                () -> assertThat(tx.version()).isEqualTo(LeaseTransaction.VERSIONS[0]),
-                () -> assertThat(tx.chainId()).isEqualTo(Waves.chainId),
-                () -> assertThat(tx.sender()).isEqualTo(sender),
-                () -> assertThat(tx.recipient()).isEqualTo(recipient),
-                () -> assertThat(tx.amount()).isEqualTo(maxAmount),
-                () -> assertThat(tx.fee()).isEqualTo(LeaseTransaction.MIN_FEE),
-                () -> assertThat(tx.feeAsset()).isEqualTo(Asset.WAVES),
-                () -> assertThat(tx.timestamp()).isEqualTo(timestamp),
-                () -> assertThat(tx.proofs()).isEqualTo(singletonList(proof))
-        );
-    }
-
-    @Test
     void protoV3_withMinAlias__canSerialize() {
         byte[] expectedBody = Base64.decode("CFISII2Pso3AdXwKxUYtumBGAOwXiwd7VICSuiPRijFoYzd0GgQQoI0GIJyQm/OZLigD4gYSCgYSBHJpY2gQ//////////9/");
         byte[] expectedBytes = Base64.decode("CkgIUhIgjY+yjcB1fArFRi26YEYA7BeLB3tUgJK6I9GKMWhjN3QaBBCgjQYgnJCb85kuKAPiBhIKBhIEcmljaBD//////////38SQAbdYPn2WSjhB+bRw5VKYGFAWuePxZfOGVOfKzTE40pOfQBFgo6dOhwgQpC7IPs91tNc4rEk8O5TiYtQlZJCJYQ=");
@@ -134,7 +114,7 @@ public class TestLeaseTransaction {
         Proof proof = new Proof("8xhqn7Mqk4tvgFAsskwX2UKtNLZrQG9RCXqBXLqR8M1KYs1ENktSZfphA3qoyctcpLVfauf3uu8Mg9J5VY3N8SP");
 
         LeaseTransaction tx = LeaseTransaction.builder()
-                .recipient(Recipient.as(minAlias)) //todo alias
+                .recipient(Recipient.as(minAlias))
                 .amount(maxAmount)
                 .chainId(Waves.chainId)
                 .fee(LeaseTransaction.MIN_FEE)
@@ -174,6 +154,55 @@ public class TestLeaseTransaction {
                 () -> assertThat(tx.id()).isEqualTo(expectedId),
                 () -> assertThat(tx.bodyBytes()).isEqualTo(expectedBody),
                 () -> assertThat(tx.toBytes()).isEqualTo(expectedBytes)
+        );
+    }
+
+    @Test
+    void protoV3__canDeserialize() throws InvalidProtocolBufferException {
+        LeaseTransaction tx = LeaseTransaction.from(originTxBytes);
+
+        assertAll("check tx fields",
+                () -> assertThat(tx.id()).isEqualTo(originId),
+                () -> assertThat(tx.type()).isEqualTo(LeaseTransaction.TYPE),
+                () -> assertThat(tx.version()).isEqualTo(LeaseTransaction.VERSIONS[0]),
+                () -> assertThat(tx.chainId()).isEqualTo(Waves.chainId),
+                () -> assertThat(tx.sender()).isEqualTo(sender),
+                () -> assertThat(tx.recipient()).isEqualTo(recipient),
+                () -> assertThat(tx.amount()).isEqualTo(maxAmount),
+                () -> assertThat(tx.fee()).isEqualTo(LeaseTransaction.MIN_FEE),
+                () -> assertThat(tx.feeAsset()).isEqualTo(Asset.WAVES),
+                () -> assertThat(tx.timestamp()).isEqualTo(timestamp),
+                () -> assertThat(tx.proofs()).isEqualTo(Proof.list(proof)),
+                () -> assertThat(tx.bodyBytes()).isEqualTo(originTxBodyBytes),
+                () -> assertThat(tx.toBytes()).isEqualTo(originTxBytes)
+        );
+    }
+
+    @Test
+    void protoV3_withAlias__canDeserialize() throws InvalidProtocolBufferException {
+        byte[] expectedTxBodyBytes = Base64.decode("CFISII2Pso3AdXwKxUYtumBGAOwXiwd7VICSuiPRijFoYzd0GgQQoI0GIJyQm/OZLigD4gYsCiASHl9yaWNoLWFjY291bnQud2l0aEAzMF9zeW1ib2xzXxD//////////38=");
+        byte[] expectedTxBytes = Base64.decode("CmIIUhIgjY+yjcB1fArFRi26YEYA7BeLB3tUgJK6I9GKMWhjN3QaBBCgjQYgnJCb85kuKAPiBiwKIBIeX3JpY2gtYWNjb3VudC53aXRoQDMwX3N5bWJvbHNfEP//////////fxJAPsb1U87HeanfVNMhE8DPd7hSL6yfrUAnwMw2+VFmqXV6SZCKxUBeA01tsrIj2vfppQMPfRcHU/vq6XkVAI60iQ==");
+        TxId expectedId = TxId.id("FExiWyMPAqgcMx7orpawu2BsWcNz5BWJtbZFdeuveFY1");
+
+        Alias maxAlias = Alias.as("_rich-account.with@30_symbols_");
+        Proof proof = new Proof("2FoDNbHLGXB5iyd23mG7cTRhYXPawSJJPftwFSsQA9jX89CX72EtkC8xqsXsQhHHrLTCSubR9rz5569KUwmCWCFS");
+
+        LeaseTransaction tx = LeaseTransaction.from(expectedTxBytes);
+
+        assertAll("check tx fields",
+                () -> assertThat(tx.id()).isEqualTo(expectedId),
+                () -> assertThat(tx.type()).isEqualTo(LeaseTransaction.TYPE),
+                () -> assertThat(tx.version()).isEqualTo(LeaseTransaction.VERSIONS[0]),
+                () -> assertThat(tx.chainId()).isEqualTo(Waves.chainId),
+                () -> assertThat(tx.sender()).isEqualTo(sender),
+                () -> assertThat(tx.recipient()).isEqualTo(Recipient.as(maxAlias)),
+                () -> assertThat(tx.amount()).isEqualTo(maxAmount),
+                () -> assertThat(tx.fee()).isEqualTo(LeaseTransaction.MIN_FEE),
+                () -> assertThat(tx.feeAsset()).isEqualTo(Asset.WAVES),
+                () -> assertThat(tx.timestamp()).isEqualTo(timestamp),
+                () -> assertThat(tx.proofs()).isEqualTo(Proof.list(proof)),
+                () -> assertThat(tx.bodyBytes()).isEqualTo(expectedTxBodyBytes),
+                () -> assertThat(tx.toBytes()).isEqualTo(expectedTxBytes)
         );
     }
 

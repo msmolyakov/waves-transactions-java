@@ -11,6 +11,7 @@ import im.mak.waves.transactions.common.Recipient;
 
 import java.util.List;
 
+import static im.mak.waves.transactions.serializers.ProtobufConverter.fromProto;
 import static java.util.stream.Collectors.toList;
 
 public class LeaseTransaction extends Transaction {
@@ -38,8 +39,7 @@ public class LeaseTransaction extends Transaction {
         return builder()
                 .version(tx.getVersion())
                 .chainId((byte) tx.getChainId())
-                .recipient(Recipient.as(Address.fromPart( //todo what if alias?
-                        lease.getRecipient().getPublicKeyHash().toByteArray(), (byte) tx.getChainId())))
+                .recipient(fromProto(lease.getRecipient(), (byte) tx.getChainId()))
                 .amount(lease.getAmount())
                 .sender(PublicKey.as(tx.getSenderPublicKey().toByteArray()))
                 .fee(tx.getFee().getAmount()) //todo validate feeAssetId (must be null)
