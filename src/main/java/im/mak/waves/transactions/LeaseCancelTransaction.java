@@ -9,13 +9,13 @@ import java.util.List;
 public class LeaseCancelTransaction extends Transaction {
 
     public static final int TYPE = 9;
-    public static final int[] VERSIONS = new int[]{3, 2, 1};
+    public static final int LATEST_VERSION = 3;
     public static final long MIN_FEE = 100_000;
 
     private final Base58 leaseId;
 
     public LeaseCancelTransaction(Base58 leaseId, byte chainId, PublicKey sender, long fee, long timestamp, List<Proof> proofs) {
-        super(TYPE, VERSIONS[0], chainId, sender, fee, null, timestamp, proofs);
+        super(TYPE, LATEST_VERSION, chainId, sender, fee, null, timestamp, proofs);
 
         this.leaseId = leaseId;
     }
@@ -35,7 +35,7 @@ public class LeaseCancelTransaction extends Transaction {
         private Base58 leaseId;
 
         protected LeaseCancelTransactionBuilder() {
-            super(VERSIONS[0], MIN_FEE);
+            super(LATEST_VERSION, MIN_FEE);
         }
 
         public LeaseCancelTransactionBuilder leaseId(Base58 leaseId) {

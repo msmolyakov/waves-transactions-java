@@ -12,14 +12,14 @@ public class LeaseTransaction extends Transaction {
 
     //todo checkstyle custom checks
     public static final int TYPE = 8;
-    public static final int[] VERSIONS = new int[]{3, 2, 1};
+    public static final int LATEST_VERSION = 3;
     public static final long MIN_FEE = 100_000;
 
     private final Recipient recipient;
     private final long amount;
 
     public LeaseTransaction(PublicKey sender, Recipient recipient, long amount, byte chainId, long fee, long timestamp, List<Proof> proofs) {
-        super(TYPE, VERSIONS[0], chainId, sender, fee, Asset.WAVES, timestamp, proofs);
+        super(TYPE, LATEST_VERSION, chainId, sender, fee, Asset.WAVES, timestamp, proofs);
 
         this.recipient = recipient;
         this.amount = amount;
@@ -48,7 +48,7 @@ public class LeaseTransaction extends Transaction {
         private final long amount;
 
         protected LeaseTransactionBuilder(Recipient recipient, long amount) {
-            super(VERSIONS[0], MIN_FEE);
+            super(LATEST_VERSION, MIN_FEE);
             this.recipient = recipient; //todo clone
             this.amount = amount;
         }

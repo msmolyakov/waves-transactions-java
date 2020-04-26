@@ -9,9 +9,6 @@ import im.mak.waves.transactions.common.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -127,7 +124,7 @@ public class TestLeaseTransaction {
         assertAll("check tx fields",
                 () -> assertThat(tx.id()).isEqualTo(originId),
                 () -> assertThat(tx.type()).isEqualTo(LeaseTransaction.TYPE),
-                () -> assertThat(tx.version()).isEqualTo(LeaseTransaction.VERSIONS[0]),
+                () -> assertThat(tx.version()).isEqualTo(LeaseTransaction.LATEST_VERSION),
                 () -> assertThat(tx.chainId()).isEqualTo(Waves.chainId),
                 () -> assertThat(tx.sender()).isEqualTo(sender),
                 () -> assertThat(tx.recipient()).isEqualTo(recipient),
@@ -155,7 +152,7 @@ public class TestLeaseTransaction {
         assertAll("check ltx fields",
                 () -> assertThat(ltx.id()).isEqualTo(expectedId),
                 () -> assertThat(ltx.type()).isEqualTo(LeaseTransaction.TYPE),
-                () -> assertThat(ltx.version()).isEqualTo(LeaseTransaction.VERSIONS[0]),
+                () -> assertThat(ltx.version()).isEqualTo(LeaseTransaction.LATEST_VERSION),
                 () -> assertThat(ltx.chainId()).isEqualTo(Waves.chainId),
                 () -> assertThat(ltx.sender()).isEqualTo(sender),
                 () -> assertThat(ltx.recipient()).isEqualTo(Recipient.as(maxAlias)),
@@ -173,7 +170,7 @@ public class TestLeaseTransaction {
         assertAll("check tx fields",
                 () -> assertThat(tx.id()).isEqualTo(expectedId),
                 () -> assertThat(tx.type()).isEqualTo(LeaseTransaction.TYPE),
-                () -> assertThat(tx.version()).isEqualTo(LeaseTransaction.VERSIONS[0]),
+                () -> assertThat(tx.version()).isEqualTo(LeaseTransaction.LATEST_VERSION),
                 () -> assertThat(tx.chainId()).isEqualTo(Waves.chainId),
                 () -> assertThat(tx.sender()).isEqualTo(sender),
                 () -> assertThat(tx.recipient()).isEqualTo(Recipient.as(maxAlias)),
