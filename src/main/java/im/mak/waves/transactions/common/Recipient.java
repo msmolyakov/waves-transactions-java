@@ -56,9 +56,9 @@ public class Recipient {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Recipient other = (Recipient) o;
-        return Objects.equals(this.address, other.address) &&
-                Objects.equals(this.alias, other.alias);
+        Recipient that = (Recipient) o;
+        return Objects.equals(this.address, that.address) &&
+                Objects.equals(this.alias, that.alias);
     }
 
     @Override

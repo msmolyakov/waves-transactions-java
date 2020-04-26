@@ -3,10 +3,10 @@ package im.mak.waves.transactions;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.wavesplatform.protobuf.transaction.TransactionOuterClass;
 import im.mak.waves.crypto.Bytes;
-import im.mak.waves.crypto.Hash;
 import im.mak.waves.crypto.account.Address;
 import im.mak.waves.crypto.account.PublicKey;
-import im.mak.waves.crypto.base.Base58;
+import im.mak.waves.transactions.common.Asset;
+import im.mak.waves.transactions.common.Proof;
 import im.mak.waves.transactions.common.Recipient;
 
 import java.util.List;
@@ -44,12 +44,12 @@ public class LeaseTransaction extends Transaction {
                 .sender(PublicKey.as(tx.getSenderPublicKey().toByteArray()))
                 .fee(tx.getFee().getAmount()) //todo validate feeAssetId (must be null)
                 .timestamp(tx.getTimestamp())
-                .proofs(signed.getProofsList().stream().map(p -> new Base58(p.toByteArray())).collect(toList()))
+                .proofs(signed.getProofsList().stream().map(p -> Proof.proof(p.toByteArray())).collect(toList()))
                 .build();
     }
 
-    public LeaseTransaction(Recipient recipient, long amount, byte chainId, PublicKey sender, long fee, long timestamp, List<Base58> proofs) {
-        super(TYPE, VERSIONS[0], chainId, sender, fee, new Base58(Bytes.empty()), timestamp, proofs);
+    public LeaseTransaction(Recipient recipient, long amount, byte chainId, PublicKey sender, long fee, long timestamp, List<Proof> proofs) {
+        super(TYPE, VERSIONS[0], chainId, sender, fee, Asset.WAVES, timestamp, proofs);
 
         this.recipient = recipient;
         this.amount = amount;

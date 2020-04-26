@@ -5,8 +5,8 @@ import im.mak.waves.crypto.Hash;
 
 public interface Serialized {
 
-    default byte[] id() {
-        return Hash.blake(bodyBytes());
+    default TxId id() {
+        return new TxId(Hash.blake(bodyBytes()));
     }
 
     byte[] bodyBytes();

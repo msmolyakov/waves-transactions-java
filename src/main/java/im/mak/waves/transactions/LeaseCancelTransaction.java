@@ -2,6 +2,7 @@ package im.mak.waves.transactions;
 
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.crypto.base.Base58;
+import im.mak.waves.transactions.common.Proof;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class LeaseCancelTransaction extends Transaction {
 
     private final Base58 leaseId;
 
-    public LeaseCancelTransaction(Base58 leaseId, byte chainId, PublicKey sender, long fee, long timestamp, List<Base58> proofs) {
+    public LeaseCancelTransaction(Base58 leaseId, byte chainId, PublicKey sender, long fee, long timestamp, List<Proof> proofs) {
         super(TYPE, VERSIONS[0], chainId, sender, fee, null, timestamp, proofs);
 
         this.leaseId = leaseId;

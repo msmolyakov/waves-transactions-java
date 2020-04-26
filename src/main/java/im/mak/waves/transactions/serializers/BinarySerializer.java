@@ -20,7 +20,7 @@ public class BinarySerializer {
                 .setFee(AmountOuterClass.Amount.newBuilder()
                         .setAmount(tx.fee())
                         .setAssetId(ByteString.copyFrom(
-                                tx.feeAssetId().decoded()))
+                                tx.feeAsset().bytes()))
                         .build())
                 .setTimestamp(tx.timestamp());
 
@@ -46,7 +46,7 @@ public class BinarySerializer {
                 .setTransaction(protoTx)
                 .addAllProofs(tx.proofs()
                         .stream()
-                        .map(p -> ByteString.copyFrom(p.decoded()))
+                        .map(p -> ByteString.copyFrom(p.bytes()))
                         .collect(Collectors.toList()))
                 .build();
 

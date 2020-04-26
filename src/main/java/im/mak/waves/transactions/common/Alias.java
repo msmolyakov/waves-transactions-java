@@ -53,9 +53,9 @@ public class Alias {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Alias other = (Alias) o;
-        return this.chainId == other.chainId &&
-                Objects.equals(this.alias, other.alias);
+        Alias that = (Alias) o;
+        return this.chainId == that.chainId &&
+                Objects.equals(this.alias, that.alias);
     }
 
     @Override

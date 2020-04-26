@@ -1,9 +1,10 @@
 package im.mak.waves.transactions;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import im.mak.waves.crypto.Bytes;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.crypto.base.Base58;
+import im.mak.waves.transactions.common.Asset;
+import im.mak.waves.transactions.common.Proof;
 import im.mak.waves.transactions.common.Serialized;
 import im.mak.waves.transactions.common.Waves;
 import im.mak.waves.transactions.serializers.BinarySerializer;
@@ -18,19 +19,19 @@ public class Transaction implements Serialized {
     private final byte chainId;
     private final PublicKey sender;
     private final long fee;
-    private final Base58 feeAssetId;
+    private final Asset feeAsset;
     private final long timestamp;
-    private final List<Base58> proofs;
+    private final List<Proof> proofs;
     private byte[] bodyBytes;
 
     //TODO additional constructor for all children only with mandatory fields
-    protected Transaction(int type, int version, byte chainId, PublicKey sender, long fee, Base58 feeAssetId, long timestamp, List<Base58> proofs) {
+    protected Transaction(int type, int version, byte chainId, PublicKey sender, long fee, Asset feeAsset, long timestamp, List<Proof> proofs) {
         this.type = type;
         this.version = version;
         this.chainId = chainId;
         this.sender = sender; //todo if null?
         this.fee = fee;
-        this.feeAssetId = feeAssetId == null ? new Base58(Bytes.empty()) : feeAssetId;
+        this.feeAsset = feeAsset;
         this.timestamp = timestamp;
         this.proofs = proofs == null ? new ArrayList<>() : proofs;
     }
@@ -55,15 +56,15 @@ public class Transaction implements Serialized {
         return fee;
     }
 
-    public Base58 feeAssetId() {
-        return feeAssetId; //todo clone
+    public Asset feeAsset() {
+        return feeAsset; //todo clone
     }
 
     public long timestamp() {
         return timestamp;
     }
 
-    public List<Base58> proofs() {
+    public List<Proof> proofs() {
         return proofs; //todo clone
     }
 
@@ -91,7 +92,7 @@ public class Transaction implements Serialized {
         protected PublicKey sender;
         protected long fee;
         protected long timestamp;
-        protected List<Base58> proofs;
+        protected List<Proof> proofs;
 
         protected TransactionBuilder(long fee) {
             this.fee = fee;
@@ -126,7 +127,7 @@ public class Transaction implements Serialized {
             return builder();
         }
 
-        public BUILDER proofs(List<Base58> proofs) {
+        public BUILDER proofs(List<Proof> proofs) {
             this.proofs = proofs; //todo clone
             return builder();
         }

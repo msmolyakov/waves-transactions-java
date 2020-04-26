@@ -1,5 +1,44 @@
 package im.mak.waves.transactions.common;
 
-public class Proof extends Bas58 {
+import im.mak.waves.crypto.Bytes;
+import im.mak.waves.crypto.base.Base58;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Proof extends Base58Encoded {
+
+    public static final int BYTE_LENGTH = 64;
+    public static final Proof EMPTY = new Proof("");
+
+    public static List<Proof> emptyList() {
+        return new ArrayList<>();
+    }
+
+    public static Proof proof(byte[] proof) {
+        return new Proof(proof);
+    }
+
+    public static Proof proof(String proof) {
+        return new Proof(proof);
+    }
+
+    public Proof(byte[] proof) {
+        super(proof);
+    }
+
+    public Proof(String proof) {
+        super(proof);
+    }
+
+    @Override
+    protected byte[] validate(byte[] value) throws IllegalArgumentException {
+        if (value.length == 0)
+            return Bytes.empty();
+        else if (value.length == BYTE_LENGTH)
+            return value;
+        else throw new IllegalArgumentException("Wrong proof '" + Base58.encode(value)
+                    + "' byte length " + value.length + ". Must be " + BYTE_LENGTH);
+    }
 
 }
