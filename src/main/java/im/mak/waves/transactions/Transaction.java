@@ -36,7 +36,7 @@ public class Transaction implements WithBody {
         this.fee = fee;
         this.feeAsset = feeAsset;
         this.timestamp = timestamp;
-        this.proofs = proofs == null ? new ArrayList<>() : proofs;
+        this.proofs = proofs == null ? Proof.emptyList() : new ArrayList<>(proofs);
     }
 
     public int type() {
@@ -68,7 +68,7 @@ public class Transaction implements WithBody {
     }
 
     public List<Proof> proofs() {
-        return proofs; //todo clone
+        return proofs;
     }
 
     @Override
@@ -86,25 +86,28 @@ public class Transaction implements WithBody {
     //TODO implement clone in crypto lib
     //TODO this+children: hashCode, equals, toString
     //TODO basic validations in builder/constructor
-    //TODO typed fields? AssetId, Recipient, Proofs and etc
 
     protected static abstract class TransactionBuilder
             <BUILDER extends TransactionBuilder<BUILDER, TX>, TX extends Transaction> {
         protected int version;
-        protected byte chainId = Waves.chainId;
+        protected byte chainId;
         protected PublicKey sender;
         protected long fee;
+        protected Asset feeAsset;
         protected long timestamp;
-        protected List<Proof> proofs;
 
-        protected TransactionBuilder(long fee) {
-            this.fee = fee;
+        protected TransactionBuilder(int defaultVersion, long defaultFee) {
+            this.version = defaultVersion;
+            this.chainId = Waves.chainId;
+            this.fee = defaultFee;
+            this.feeAsset = Asset.WAVES;
         }
 
         private BUILDER builder() {
             return (BUILDER) this;
         }
 
+        //todo how to hide from public
         public BUILDER version(int version) {
             this.version = version;
             return builder();
@@ -115,6 +118,7 @@ public class Transaction implements WithBody {
             return builder();
         }
 
+        //todo require to set, at least sender
         public BUILDER sender(PublicKey publicKey) {
             this.sender = publicKey; //todo clone
             return builder();
@@ -125,17 +129,20 @@ public class Transaction implements WithBody {
             return builder();
         }
 
+        //todo how to hide from public?
+        public BUILDER feeAsset(Asset asset) {
+            this.feeAsset = asset;
+            return builder();
+        }
+
         public BUILDER timestamp(long timestamp) {
             this.timestamp = timestamp;
             return builder();
         }
 
-        public BUILDER proofs(List<Proof> proofs) {
-            this.proofs = proofs; //todo clone
-            return builder();
-        }
-
-        public TX build() {
+        public TX get() {
+            if (timestamp == 0)
+                this.timestamp(System.currentTimeMillis());
             return _build();
         }
 

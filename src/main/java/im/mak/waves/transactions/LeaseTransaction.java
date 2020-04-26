@@ -5,7 +5,6 @@ import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.transactions.common.Asset;
 import im.mak.waves.transactions.common.Proof;
 import im.mak.waves.transactions.common.Recipient;
-import im.mak.waves.transactions.serializers.BinarySerializer;
 
 import java.util.List;
 
@@ -27,11 +26,12 @@ public class LeaseTransaction extends Transaction {
     }
 
     public static LeaseTransaction fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
-        return (LeaseTransaction) BinarySerializer.fromBytes(bytes);
+        return (LeaseTransaction) Transaction.fromBytes(bytes);
     }
 
-    public static LeaseTransactionBuilder builder() {
-        return new LeaseTransactionBuilder();
+    //todo rename each builder to "lease()", "transfer()" and etc?
+    public static LeaseTransactionBuilder builder(Recipient recipient, long amount) {
+        return new LeaseTransactionBuilder(recipient, amount);
     }
 
     public Recipient recipient() {
@@ -44,25 +44,17 @@ public class LeaseTransaction extends Transaction {
 
     public static class LeaseTransactionBuilder
             extends TransactionBuilder<LeaseTransactionBuilder, LeaseTransaction> {
-        private Recipient recipient;
-        private long amount;
+        private final Recipient recipient;
+        private final long amount;
 
-        protected LeaseTransactionBuilder() {
-            super(MIN_FEE);
-        }
-
-        public LeaseTransactionBuilder recipient(Recipient recipient) {
+        protected LeaseTransactionBuilder(Recipient recipient, long amount) {
+            super(VERSIONS[0], MIN_FEE);
             this.recipient = recipient; //todo clone
-            return this;
-        }
-
-        public LeaseTransactionBuilder amount(long amount) {
             this.amount = amount;
-            return this;
         }
 
         protected LeaseTransaction _build() {
-            return new LeaseTransaction(recipient, amount, chainId, sender, fee, timestamp, proofs);
+            return new LeaseTransaction(recipient, amount, chainId, sender, fee, timestamp, Proof.emptyList());
         }
     }
 

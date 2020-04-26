@@ -36,66 +36,31 @@ public class TestLeaseTransaction {
 
     @Test
     void protoV3__canSerialize() {
-        LeaseTransaction txSigned = LeaseTransaction.builder()
-                .recipient(recipient)
-                .amount(maxAmount)
+        LeaseTransaction txSigned = LeaseTransaction
+                .builder(recipient, maxAmount)
                 .chainId(Waves.chainId)
                 .fee(LeaseTransaction.MIN_FEE)
                 .timestamp(timestamp)
                 .sender(sender)
-                .proofs(singletonList(proof))
-                .build();
-
-        LeaseTransaction txSignedAfterCreation = LeaseTransaction.builder()
-                .recipient(recipient)
-                .amount(maxAmount)
-                .chainId(Waves.chainId)
-                .fee(LeaseTransaction.MIN_FEE)
-                .timestamp(timestamp)
-                .sender(sender)
-                .build();
-        txSignedAfterCreation.proofs().add(proof);
+                .get();
+        txSigned.proofs().add(proof);
 
         assertAll("check bytes",
                 () -> assertThat(txSigned.id()).isEqualTo(originId),
                 () -> assertThat(txSigned.bodyBytes()).isEqualTo(originTxBodyBytes),
-                () -> assertThat(txSigned.toBytes()).isEqualTo(originTxBytes),
-                () -> assertThat(txSigned.id()).isEqualTo(txSignedAfterCreation.id()),
-                () -> assertThat(txSigned.bodyBytes()).isEqualTo(txSignedAfterCreation.bodyBytes()),
-                () -> assertThat(txSigned.toBytes()).isEqualTo(txSignedAfterCreation.toBytes())
-        );
-    }
-
-    @Test
-    void protoV3__serialize__canUpdateProofs() {
-        LeaseTransaction tx = LeaseTransaction.builder()
-                .recipient(recipient)
-                .amount(maxAmount)
-                .chainId(Waves.chainId)
-                .fee(LeaseTransaction.MIN_FEE)
-                .timestamp(timestamp)
-                .sender(sender)
-                .proofs(new ArrayList<>(singletonList(proof)))
-                .build();
-        tx.proofs().add(proof);
-
-        assertAll("check bytes",
-                () -> assertThat(tx.id()).isEqualTo(originId),
-                () -> assertThat(tx.bodyBytes()).isEqualTo(originTxBodyBytes),
-                () -> assertThat(tx.toBytes()).isNotEqualTo(originTxBytes)
+                () -> assertThat(txSigned.toBytes()).isEqualTo(originTxBytes)
         );
     }
 
     @Test
     void protoV3_serializeWithoutProofs__equalToDescriptorPlusBodyBytes() throws InvalidProtocolBufferException {
-        LeaseTransaction tx = LeaseTransaction.builder()
-                .recipient(recipient)
-                .amount(maxAmount)
+        LeaseTransaction tx = LeaseTransaction
+                .builder(recipient, maxAmount)
                 .chainId(Waves.chainId)
                 .fee(LeaseTransaction.MIN_FEE)
                 .timestamp(timestamp)
                 .sender(sender)
-                .build();
+                .get();
 
         byte[] fieldNumberAndDescriptor = Bytes.of((byte) 10, (byte) 88);
         assertThat(tx.toBytes()).isEqualTo(Bytes.concat(
@@ -113,15 +78,14 @@ public class TestLeaseTransaction {
         Alias minAlias = Alias.as("rich");
         Proof proof = new Proof("8xhqn7Mqk4tvgFAsskwX2UKtNLZrQG9RCXqBXLqR8M1KYs1ENktSZfphA3qoyctcpLVfauf3uu8Mg9J5VY3N8SP");
 
-        LeaseTransaction tx = LeaseTransaction.builder()
-                .recipient(Recipient.as(minAlias))
-                .amount(maxAmount)
+        LeaseTransaction tx = LeaseTransaction
+                .builder(Recipient.as(minAlias), maxAmount)
                 .chainId(Waves.chainId)
                 .fee(LeaseTransaction.MIN_FEE)
                 .timestamp(timestamp)
                 .sender(sender)
-                .proofs(singletonList(proof))
-                .build();
+                .get();
+        tx.proofs().add(proof);
 
         assertAll("check bytes",
                 () -> assertThat(tx.id()).isEqualTo(expectedId),
@@ -140,15 +104,14 @@ public class TestLeaseTransaction {
         Alias maxAlias = Alias.as("_rich-account.with@30_symbols_");
         Proof proof = new Proof("2FoDNbHLGXB5iyd23mG7cTRhYXPawSJJPftwFSsQA9jX89CX72EtkC8xqsXsQhHHrLTCSubR9rz5569KUwmCWCFS");
 
-        LeaseTransaction tx = LeaseTransaction.builder()
-                .recipient(Recipient.as(maxAlias))
-                .amount(maxAmount)
+        LeaseTransaction tx = LeaseTransaction
+                .builder(Recipient.as(maxAlias), maxAmount)
                 .chainId(Waves.chainId)
                 .fee(LeaseTransaction.MIN_FEE)
                 .timestamp(timestamp)
                 .sender(sender)
-                .proofs(singletonList(proof))
-                .build();
+                .get();
+        tx.proofs().add(proof);
 
         assertAll("check bytes",
                 () -> assertThat(tx.id()).isEqualTo(expectedId),
@@ -187,7 +150,25 @@ public class TestLeaseTransaction {
         Alias maxAlias = Alias.as("_rich-account.with@30_symbols_");
         Proof proof = new Proof("2FoDNbHLGXB5iyd23mG7cTRhYXPawSJJPftwFSsQA9jX89CX72EtkC8xqsXsQhHHrLTCSubR9rz5569KUwmCWCFS");
 
-        LeaseTransaction tx = LeaseTransaction.fromBytes(expectedTxBytes);
+        LeaseTransaction ltx = LeaseTransaction.fromBytes(expectedTxBytes);
+
+        assertAll("check ltx fields",
+                () -> assertThat(ltx.id()).isEqualTo(expectedId),
+                () -> assertThat(ltx.type()).isEqualTo(LeaseTransaction.TYPE),
+                () -> assertThat(ltx.version()).isEqualTo(LeaseTransaction.VERSIONS[0]),
+                () -> assertThat(ltx.chainId()).isEqualTo(Waves.chainId),
+                () -> assertThat(ltx.sender()).isEqualTo(sender),
+                () -> assertThat(ltx.recipient()).isEqualTo(Recipient.as(maxAlias)),
+                () -> assertThat(ltx.amount()).isEqualTo(maxAmount),
+                () -> assertThat(ltx.fee()).isEqualTo(LeaseTransaction.MIN_FEE),
+                () -> assertThat(ltx.feeAsset()).isEqualTo(Asset.WAVES),
+                () -> assertThat(ltx.timestamp()).isEqualTo(timestamp),
+                () -> assertThat(ltx.proofs()).isEqualTo(Proof.list(proof)),
+                () -> assertThat(ltx.bodyBytes()).isEqualTo(expectedTxBodyBytes),
+                () -> assertThat(ltx.toBytes()).isEqualTo(expectedTxBytes)
+        );
+
+        LeaseTransaction tx = (LeaseTransaction) Transaction.fromBytes(expectedTxBytes);
 
         assertAll("check tx fields",
                 () -> assertThat(tx.id()).isEqualTo(expectedId),

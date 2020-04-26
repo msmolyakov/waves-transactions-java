@@ -8,12 +8,12 @@ import com.wavesplatform.protobuf.transaction.TransactionOuterClass;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.transactions.LeaseTransaction;
 import im.mak.waves.transactions.Transaction;
+import im.mak.waves.transactions.common.Asset;
 import im.mak.waves.transactions.common.Proof;
 
 import java.util.stream.Collectors;
 
 import static im.mak.waves.transactions.serializers.ProtobufConverter.fromProto;
-import static java.util.stream.Collectors.toList;
 
 public class BinarySerializer {
 
@@ -65,18 +65,20 @@ public class BinarySerializer {
 
         TransactionOuterClass.Transaction tx = signed.getTransaction();
 
+        //todo other types
         if (tx.hasLease()) {
             TransactionOuterClass.LeaseTransactionData lease = tx.getLease();
-            return LeaseTransaction.builder()
+            LeaseTransaction ltx = LeaseTransaction
+                    .builder(fromProto(lease.getRecipient(), (byte) tx.getChainId()), lease.getAmount())
                     .version(tx.getVersion())
                     .chainId((byte) tx.getChainId())
-                    .recipient(fromProto(lease.getRecipient(), (byte) tx.getChainId()))
-                    .amount(lease.getAmount())
                     .sender(PublicKey.as(tx.getSenderPublicKey().toByteArray()))
-                    .fee(tx.getFee().getAmount()) //todo validate feeAssetId (must be null)
+                    .fee(tx.getFee().getAmount())
+                    .feeAsset(Asset.id(tx.getFee().getAssetId().toByteArray()))
                     .timestamp(tx.getTimestamp())
-                    .proofs(signed.getProofsList().stream().map(p -> Proof.proof(p.toByteArray())).collect(toList()))
-                    .build();
+                    .get();
+            signed.getProofsList().forEach(p -> ltx.proofs().add(Proof.proof(p.toByteArray())));
+            return ltx;
         } else throw new InvalidProtocolBufferException("Can't recognize transaction type");
     }
 

@@ -35,7 +35,7 @@ public class LeaseCancelTransaction extends Transaction {
         private Base58 leaseId;
 
         protected LeaseCancelTransactionBuilder() {
-            super(MIN_FEE);
+            super(VERSIONS[0], MIN_FEE);
         }
 
         public LeaseCancelTransactionBuilder leaseId(Base58 leaseId) {
@@ -44,7 +44,7 @@ public class LeaseCancelTransaction extends Transaction {
         }
 
         protected LeaseCancelTransaction _build() {
-            return new LeaseCancelTransaction(leaseId, chainId, sender, fee, timestamp, proofs);
+            return new LeaseCancelTransaction(leaseId, chainId, sender, fee, timestamp, Proof.emptyList());
         }
     }
 
