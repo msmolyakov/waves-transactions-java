@@ -18,7 +18,7 @@ public class LeaseTransaction extends Transaction {
     private final Recipient recipient;
     private final long amount;
 
-    public LeaseTransaction(Recipient recipient, long amount, byte chainId, PublicKey sender, long fee, long timestamp, List<Proof> proofs) {
+    public LeaseTransaction(PublicKey sender, Recipient recipient, long amount, byte chainId, long fee, long timestamp, List<Proof> proofs) {
         super(TYPE, VERSIONS[0], chainId, sender, fee, Asset.WAVES, timestamp, proofs);
 
         this.recipient = recipient;
@@ -54,7 +54,7 @@ public class LeaseTransaction extends Transaction {
         }
 
         protected LeaseTransaction _build() {
-            return new LeaseTransaction(recipient, amount, chainId, sender, fee, timestamp, Proof.emptyList());
+            return new LeaseTransaction(sender, recipient, amount, chainId, fee, timestamp, Proof.emptyList());
         }
     }
 
