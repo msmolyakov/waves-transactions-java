@@ -11,10 +11,10 @@ public class Alias {
     private final String alias;
 
     public Alias(String alias) {
-        this(alias, Waves.chainId);
+        this(Waves.chainId, alias);
     }
 
-    public Alias(String value, byte chainId) {
+    public Alias(byte chainId, String value) {
         if (isValid(value, chainId)) {
             this.chainId = chainId;
             this.alias = value.replaceFirst("^alias:" + (char) chainId + ":", "");
@@ -37,8 +37,8 @@ public class Alias {
         return new Alias(alias);
     }
 
-    public static Alias as(String value, byte chainId) {
-        return new Alias(value, chainId);
+    public static Alias as(byte chainId, String value) {
+        return new Alias(chainId, value);
     }
 
     public byte chainId() {

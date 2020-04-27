@@ -1,11 +1,11 @@
 package im.mak.waves.transactions;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.transactions.common.Asset;
 import im.mak.waves.transactions.common.Proof;
 import im.mak.waves.transactions.common.Recipient;
 
+import java.io.IOException;
 import java.util.List;
 
 public class LeaseTransaction extends Transaction {
@@ -25,7 +25,7 @@ public class LeaseTransaction extends Transaction {
         this.amount = amount;
     }
 
-    public static LeaseTransaction fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
+    public static LeaseTransaction fromBytes(byte[] bytes) throws IOException {
         return (LeaseTransaction) Transaction.fromBytes(bytes);
     }
 

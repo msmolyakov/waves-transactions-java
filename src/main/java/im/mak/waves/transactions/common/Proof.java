@@ -28,11 +28,11 @@ public class Proof extends Base58Encoded {
         return new ArrayList<>(Arrays.asList(proofs)); //todo copy
     }
 
-    public static Proof proof(byte[] proof) {
+    public static Proof as(byte[] proof) {
         return new Proof(proof);
     }
 
-    public static Proof proof(String proof) {
+    public static Proof as(String proof) {
         return new Proof(proof);
     }
 

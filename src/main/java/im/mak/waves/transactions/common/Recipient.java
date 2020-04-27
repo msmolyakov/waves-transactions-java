@@ -1,6 +1,5 @@
 package im.mak.waves.transactions.common;
 
-import com.wavesplatform.protobuf.transaction.RecipientOuterClass;
 import im.mak.waves.crypto.account.Address;
 
 import java.util.Objects;
@@ -8,14 +7,6 @@ import java.util.Objects;
 public class Recipient {
     private Address address;
     private Alias alias;
-
-    public static Recipient as(Address address) {
-        return new Recipient(address);
-    }
-
-    public static Recipient as(Alias alias) {
-        return new Recipient(alias);
-    }
 
     public Recipient(Address address) {
         this.address = address;
@@ -25,8 +16,20 @@ public class Recipient {
         this.alias = alias;
     }
 
+    public static Recipient as(Address address) {
+        return new Recipient(address);
+    }
+
+    public static Recipient as(Alias alias) {
+        return new Recipient(alias);
+    }
+
     public boolean isAlias() {
         return this.address == null;
+    }
+
+    public byte chainId() {
+        return isAlias() ? alias.chainId() : address.chainId();
     }
 
     public Object value() {

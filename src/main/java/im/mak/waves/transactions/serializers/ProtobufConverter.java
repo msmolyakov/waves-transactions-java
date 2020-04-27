@@ -12,7 +12,7 @@ public class ProtobufConverter {
         if (proto.getRecipientCase().getNumber() == 1)
             return Recipient.as(Address.fromPart(proto.getPublicKeyHash().toByteArray(), chainId));
         else if (proto.getRecipientCase().getNumber() == 2) {
-            return Recipient.as(Alias.as(proto.getAlias(), chainId));
+            return Recipient.as(Alias.as(chainId, proto.getAlias()));
         } else throw new IllegalArgumentException("Protobuf recipient must be specified");
     }
 

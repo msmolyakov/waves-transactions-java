@@ -9,6 +9,8 @@ import im.mak.waves.transactions.common.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -118,7 +120,7 @@ public class TestLeaseTransaction {
     }
 
     @Test
-    void protoV3__canDeserialize() throws InvalidProtocolBufferException {
+    void protoV3__canDeserialize() throws IOException {
         LeaseTransaction tx = LeaseTransaction.fromBytes(originTxBytes);
 
         assertAll("check tx fields",
@@ -139,7 +141,7 @@ public class TestLeaseTransaction {
     }
 
     @Test
-    void protoV3_withAlias__canDeserialize() throws InvalidProtocolBufferException {
+    void protoV3_withAlias__canDeserialize() throws IOException {
         byte[] expectedTxBodyBytes = Base64.decode("CFISII2Pso3AdXwKxUYtumBGAOwXiwd7VICSuiPRijFoYzd0GgQQoI0GIJyQm/OZLigD4gYsCiASHl9yaWNoLWFjY291bnQud2l0aEAzMF9zeW1ib2xzXxD//////////38=");
         byte[] expectedTxBytes = Base64.decode("CmIIUhIgjY+yjcB1fArFRi26YEYA7BeLB3tUgJK6I9GKMWhjN3QaBBCgjQYgnJCb85kuKAPiBiwKIBIeX3JpY2gtYWNjb3VudC53aXRoQDMwX3N5bWJvbHNfEP//////////fxJAPsb1U87HeanfVNMhE8DPd7hSL6yfrUAnwMw2+VFmqXV6SZCKxUBeA01tsrIj2vfppQMPfRcHU/vq6XkVAI60iQ==");
         TxId expectedId = TxId.id("FExiWyMPAqgcMx7orpawu2BsWcNz5BWJtbZFdeuveFY1");

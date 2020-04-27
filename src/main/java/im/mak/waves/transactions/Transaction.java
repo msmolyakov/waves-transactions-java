@@ -8,6 +8,7 @@ import im.mak.waves.transactions.common.WithBody;
 import im.mak.waves.transactions.common.Waves;
 import im.mak.waves.transactions.serializers.BinarySerializer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class Transaction implements WithBody {
     private final List<Proof> proofs;
     private byte[] bodyBytes;
 
-    public static Transaction fromBytes(byte[] bytes) throws InvalidProtocolBufferException {
+    public static Transaction fromBytes(byte[] bytes) throws IOException {
         return BinarySerializer.fromBytes(bytes);
     }
 
@@ -79,8 +80,8 @@ public class Transaction implements WithBody {
     }
 
     @Override
-    public byte[] toBytes() throws InvalidProtocolBufferException {
-        return BinarySerializer.bytes(this);
+    public byte[] toBytes() {
+        return BinarySerializer.toBytes(this);
     }
 
     //TODO implement clone in crypto lib
