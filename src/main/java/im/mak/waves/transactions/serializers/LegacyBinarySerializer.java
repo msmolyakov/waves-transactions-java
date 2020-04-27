@@ -28,11 +28,13 @@ public class LegacyBinarySerializer {
     }
 
     public static Transaction fromBytes(byte[] bytes) throws IOException {
-        if (bytes.length < 4) throw new IOException("Byte array in too short to parse a transaction");
+        if (bytes.length < 4)
+            throw new IOException("Byte array in too short to parse a transaction");
         boolean withProofs = bytes[0] == 0;
-        int i = withProofs ? 1 : 0;
-        int type = bytes[i];
-        int version = withProofs ? bytes[i + 1] : 1;
+        int index = withProofs ? 1 : 0;
+
+        int type = bytes[index];
+        int version = withProofs ? bytes[index + 1] : 1;
         byte[] data = Bytes.chunk(bytes, withProofs ? 3 : 1)[1];
 
         Transaction transaction;
@@ -46,6 +48,7 @@ public class LegacyBinarySerializer {
             throw new IOException("The size of " + bytes.length
                     + " bytes is " + (bytes.length - reader.rest())
                     + " greater than expected for type " + type + " and version " + version + " of the transaction");
+
         return transaction;
     }
 

@@ -1,6 +1,5 @@
 package im.mak.waves.transactions;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import im.mak.waves.crypto.Bytes;
 import im.mak.waves.crypto.account.Address;
 import im.mak.waves.crypto.account.PublicKey;
@@ -8,51 +7,87 @@ import im.mak.waves.crypto.base.Base64;
 import im.mak.waves.transactions.common.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class TestLeaseTransaction {
 
-    byte[] originTxBodyBytes = Base64.decode("CFISII2Pso3AdXwKxUYtumBGAOwXiwd7VICSuiPRijFoYzd0GgQQoI0GIJyQm/OZLigD4gYiChYKFCeJyYXTXWfWhdwOmLovIW2Gvo+8EP//////////fw==");
-    byte[] originTxBytes = Base64.decode("ClgIUhIgjY+yjcB1fArFRi26YEYA7BeLB3tUgJK6I9GKMWhjN3QaBBCgjQYgnJCb85kuKAPiBiIKFgoUJ4nJhdNdZ9aF3A6Yui8hbYa+j7wQ//////////9/EkAcb3c/UoHj5Cm5xcJZ5cf3dHbfswtfxPpujeBJq5b3M6G6hAy3htBhujUcc3X613p020xfat3whx07IxGqDeaM");
-    TxId originId = TxId.id("D2H9GTZ1F6fViJibjimJd62prJCh3WhXpwa8gkf3JTfd");
-    long maxAmount = Long.MAX_VALUE;
-    long timestamp = 1587500468252L;
-    Proof proof = new Proof("ZyV6cBzUFEBQ6wDyzj689KUBXSTahGeoec6GTonM9CJWc9LMEHXy7d51f4Mysk78zVnkrjuF539pvEJBV2uL4nP");
-    String json = "{\"senderPublicKey\":\"AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV\",\"amount\":9223372036854775807,\"sender\":\"3MsX9C2MzzxE4ySF5aYcJoaiPfkyxZMg4cW\",\"feeAssetId\":null,\"chainId\":82,\"proofs\":[\"ZyV6cBzUFEBQ6wDyzj689KUBXSTahGeoec6GTonM9CJWc9LMEHXy7d51f4Mysk78zVnkrjuF539pvEJBV2uL4nP\"],\"fee\":100000,\"recipient\":\"3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF\",\"id\":\"D2H9GTZ1F6fViJibjimJd62prJCh3WhXpwa8gkf3JTfd\",\"type\":8,\"version\":3,\"timestamp\":1587500468252}";
+    //todo version   v1, v2, v3
+    //todo recipient address, alias
+    //todo amount    min, max
+    //todo proofs    0, 1, 8
 
-    PublicKey sender = PublicKey.as("AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV");
-    Address address = sender.address(Waves.chainId); // 3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF
-    Recipient recipient = Recipient.as(address);
+    @ParameterizedTest(name = "{index} v{0} to {1} of {2} wavelets")
+    @MethodSource("transactionsProvider")
+    void leaseTransaction(int version, Recipient recipient, long amount, List<Proof> proofs, TxId expectedId, byte[] expectedBody, byte[] expectedBytes) throws IOException {
+        LeaseTransaction tx = LeaseTransaction
+                .builder(recipient, amount)
+                .chainId(Waves.chainId)
+                .fee(LeaseTransaction.MIN_FEE)
+                .timestamp(timestamp)
+                .sender(sender)
+                .version(version)
+                .get();
+        proofs.forEach(p -> tx.proofs().add(p));
+
+        assertAll("check bytes",
+                () -> assertThat(tx.id()).isEqualTo(expectedId),
+                () -> assertThat(tx.bodyBytes()).isEqualTo(expectedBody),
+                () -> assertThat(tx.toBytes()).isEqualTo(expectedBytes)
+        );
+
+        LeaseTransaction deserTx = LeaseTransaction.fromBytes(tx.toBytes());
+
+        assertAll("check bytes",
+                () -> assertThat(deserTx).isEqualTo(tx),
+
+                () -> assertThat(deserTx.recipient()).isEqualTo(recipient),
+                () -> assertThat(deserTx.amount()).isEqualTo(amount),
+
+                () -> assertThat(deserTx.version()).isEqualTo(version),
+                () -> assertThat(deserTx.chainId()).isEqualTo(Waves.chainId),
+                () -> assertThat(deserTx.sender()).isEqualTo(sender),
+                () -> assertThat(deserTx.fee()).isEqualTo(tx.fee()),
+                () -> assertThat(deserTx.feeAsset()).isEqualTo(tx.feeAsset()),
+                () -> assertThat(deserTx.timestamp()).isEqualTo(tx.timestamp()),
+                () -> assertThat(deserTx.proofs()).isEqualTo(tx.proofs()),
+
+                () -> assertThat(deserTx.id()).isEqualTo(expectedId),
+                () -> assertThat(deserTx.bodyBytes()).isEqualTo(expectedBody),
+                () -> assertThat(deserTx.toBytes()).isEqualTo(expectedBytes)
+        );
+    }
+
+    static Stream<Arguments> transactionsProvider() {
+        return Stream.of(
+                arguments(3, recipient, Long.MAX_VALUE, Proof.list(Proof.as("ZyV6cBzUFEBQ6wDyzj689KUBXSTahGeoec6GTonM9CJWc9LMEHXy7d51f4Mysk78zVnkrjuF539pvEJBV2uL4nP")), TxId.id("D2H9GTZ1F6fViJibjimJd62prJCh3WhXpwa8gkf3JTfd"), Base64.decode("CFISII2Pso3AdXwKxUYtumBGAOwXiwd7VICSuiPRijFoYzd0GgQQoI0GIJyQm/OZLigD4gYiChYKFCeJyYXTXWfWhdwOmLovIW2Gvo+8EP//////////fw=="), Base64.decode("ClgIUhIgjY+yjcB1fArFRi26YEYA7BeLB3tUgJK6I9GKMWhjN3QaBBCgjQYgnJCb85kuKAPiBiIKFgoUJ4nJhdNdZ9aF3A6Yui8hbYa+j7wQ//////////9/EkAcb3c/UoHj5Cm5xcJZ5cf3dHbfswtfxPpujeBJq5b3M6G6hAy3htBhujUcc3X613p020xfat3whx07IxGqDeaM"))
+        );
+    }
+
+    static PublicKey sender = PublicKey.as("AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV");
+    static Address address = sender.address(Waves.chainId); // 3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF
+    static Recipient recipient = Recipient.as(address);
+
+    static long timestamp = 1600000000000L;
+
+    //String json = "{\"senderPublicKey\":\"AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV\",\"amount\":9223372036854775807,\"sender\":\"3MsX9C2MzzxE4ySF5aYcJoaiPfkyxZMg4cW\",\"feeAssetId\":null,\"chainId\":82,\"proofs\":[\"ZyV6cBzUFEBQ6wDyzj689KUBXSTahGeoec6GTonM9CJWc9LMEHXy7d51f4Mysk78zVnkrjuF539pvEJBV2uL4nP\"],\"fee\":100000,\"recipient\":\"3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF\",\"id\":\"D2H9GTZ1F6fViJibjimJd62prJCh3WhXpwa8gkf3JTfd\",\"type\":8,\"version\":3,\"timestamp\":1587500468252}";
 
     @BeforeAll
     static void beforeAll() {
         Waves.chainId = 'R';
     }
 
-    @Test
-    void protoV3__canSerialize() {
-        LeaseTransaction txSigned = LeaseTransaction
-                .builder(recipient, maxAmount)
-                .chainId(Waves.chainId)
-                .fee(LeaseTransaction.MIN_FEE)
-                .timestamp(timestamp)
-                .sender(sender)
-                .get();
-        txSigned.proofs().add(proof);
-
-        assertAll("check bytes",
-                () -> assertThat(txSigned.id()).isEqualTo(originId),
-                () -> assertThat(txSigned.bodyBytes()).isEqualTo(originTxBodyBytes),
-                () -> assertThat(txSigned.toBytes()).isEqualTo(originTxBytes)
-        );
-    }
-
-    @Test
-    void protoV3_serializeWithoutProofs__equalToDescriptorPlusBodyBytes() throws InvalidProtocolBufferException {
+    /*@Test
+    void protoV3_serializeWithoutProofs__equalToDescriptorPlusBodyBytes() {
         LeaseTransaction tx = LeaseTransaction
                 .builder(recipient, maxAmount)
                 .chainId(Waves.chainId)
@@ -184,6 +219,6 @@ public class TestLeaseTransaction {
                 () -> assertThat(tx.bodyBytes()).isEqualTo(expectedTxBodyBytes),
                 () -> assertThat(tx.toBytes()).isEqualTo(expectedTxBytes)
         );
-    }
+    }*/
 
 }
