@@ -22,10 +22,10 @@ public abstract class Base58Encoded {
     }
 
     private byte[] _validate(byte[] value) {
-        return validate(value == null ? Bytes.empty() : value);
+        return validateAndGet(value == null ? Bytes.empty() : value);
     }
 
-    protected abstract byte[] validate(byte[] value) throws IllegalArgumentException;
+    protected abstract byte[] validateAndGet(byte[] value) throws IllegalArgumentException;
 
     public boolean equals(byte[] id) {
         return Bytes.equal(this.bytes, id);

@@ -37,7 +37,7 @@ public class Proof extends Base58Encoded {
     }
 
     @Override
-    protected byte[] validate(byte[] value) throws IllegalArgumentException {
+    protected byte[] validateAndGet(byte[] value) throws IllegalArgumentException {
         if (value.length == 0)
             return Bytes.empty();
         else if (value.length == BYTE_LENGTH)

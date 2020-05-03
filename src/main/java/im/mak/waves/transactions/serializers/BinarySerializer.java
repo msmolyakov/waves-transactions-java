@@ -20,12 +20,12 @@ import static im.mak.waves.transactions.serializers.ProtobufConverter.fromProto;
 public class BinarySerializer {
 
     public static byte[] bodyBytes(Transaction tx) {
-        int protoVersion = 0;
-        if (tx instanceof LeaseTransaction) protoVersion = LeaseTransaction.LATEST_VERSION;
-        else if (tx instanceof LeaseCancelTransaction) protoVersion = LeaseCancelTransaction.LATEST_VERSION;
+        int protobufVersion = 0;
+        if (tx instanceof LeaseTransaction) protobufVersion = LeaseTransaction.LATEST_VERSION;
+        else if (tx instanceof LeaseCancelTransaction) protobufVersion = LeaseCancelTransaction.LATEST_VERSION;
         //todo other types
 
-        if (tx.version() == protoVersion) {
+        if (tx.version() == protobufVersion) {
             TransactionOuterClass.Transaction.Builder protoBuilder = TransactionOuterClass.Transaction.newBuilder()
                     .setVersion(tx.version()) //todo а если создали объект из старой версии и с пруфом?
                     .setChainId(tx.chainId())

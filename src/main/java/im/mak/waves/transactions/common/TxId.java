@@ -23,7 +23,7 @@ public class TxId extends Base58Encoded {
     }
 
     @Override
-    protected byte[] validate(byte[] value) throws IllegalArgumentException {
+    protected byte[] validateAndGet(byte[] value) throws IllegalArgumentException {
         if (value.length == BYTE_LENGTH)
             return value;
         else throw new IllegalArgumentException("Wrong transaction id '" + Base58.encode(value)

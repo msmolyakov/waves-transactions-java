@@ -7,6 +7,7 @@ import im.mak.waves.transactions.common.Recipient;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class LeaseTransaction extends Transaction {
 
@@ -40,6 +41,20 @@ public class LeaseTransaction extends Transaction {
 
     public long amount() {
         return amount;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!super.equals(o) || getClass() != o.getClass()) return false;
+        LeaseTransaction that = (LeaseTransaction) o;
+        return amount == that.amount &&
+                recipient.equals(that.recipient);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(recipient, amount);
     }
 
     public static class LeaseTransactionBuilder

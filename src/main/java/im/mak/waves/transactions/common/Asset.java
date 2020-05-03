@@ -25,13 +25,13 @@ public class Asset extends Base58Encoded {
     }
 
     @Override
-    protected byte[] validate(byte[] value) throws IllegalArgumentException {
+    protected byte[] validateAndGet(byte[] value) throws IllegalArgumentException {
         if (value.length == 0)
             return Bytes.empty();
         else if (value.length == BYTE_LENGTH)
             return value;
         else throw new IllegalArgumentException("Wrong asset id '" + Base58.encode(value)
-                + "' byte length " + value.length + ". Must be " + BYTE_LENGTH + "or 0 for WAVES");
+                + "' byte length " + value.length + ". Must be " + BYTE_LENGTH + " or 0 for WAVES");
     }
 
 }

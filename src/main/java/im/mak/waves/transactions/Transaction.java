@@ -11,6 +11,7 @@ import im.mak.waves.transactions.serializers.BinarySerializer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Transaction implements WithBody {
 
@@ -87,6 +88,29 @@ public class Transaction implements WithBody {
     //TODO implement clone in crypto lib
     //TODO this+children: hashCode, equals, toString
     //TODO basic validations in builder/constructor
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Transaction that = (Transaction) o;
+        return type == that.type &&
+                version == that.version &&
+                chainId == that.chainId &&
+                fee == that.fee &&
+                timestamp == that.timestamp &&
+                sender.equals(that.sender) &&
+                feeAsset.equals(that.feeAsset) &&
+                proofs.equals(that.proofs);
+        //todo bodyBytes?
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, version, chainId, sender, fee, feeAsset, timestamp, proofs);
+        //todo bodyBytes?
+    }
 
     protected static abstract class TransactionBuilder
             <BUILDER extends TransactionBuilder<BUILDER, TX>, TX extends Transaction> {

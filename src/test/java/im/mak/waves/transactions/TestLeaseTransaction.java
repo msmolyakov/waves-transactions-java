@@ -26,7 +26,29 @@ public class TestLeaseTransaction {
     //todo amount    min, max
     //todo proofs    0, 1, 8
 
-    @ParameterizedTest(name = "{index} v{0} to {1} of {2} wavelets")
+    static PublicKey sender = PublicKey.as("AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV");
+    static long timestamp = 1600000000000L;
+
+    @BeforeAll
+    static void beforeAll() {
+        Waves.chainId = 'R';
+    }
+
+    static Stream<Arguments> transactionsProvider() {
+        Recipient minAlias = Recipient.as(Alias.as("rich"));
+        Recipient maxAlias = Recipient.as(Alias.as("_rich-account.with@30_symbols_"));
+        Recipient address = Recipient.as(Address.from(sender, Waves.chainId)); // 3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF
+        return Stream.of(
+                arguments(3, minAlias, 1, Proof.list(Proof.as("3mYdtrBDiizLESUQ88ZF3Bi9Xt8nM4FwYpDPVfSA5JMHHKs58ZirSG1eXuhwB2qPLQq8VXm7QRubHHuxiJXUcFq2")), TxId.id("65jwmmr3Yb3z2iNUMSUQuqF7PRPckhB8Z7MUgQiBXxLh"), Base64.decode("CFISII2Pso3AdXwKxUYtumBGAOwXiwd7VICSuiPRijFoYzd0GgQQoI0GIICAurvILigD4gYKCgYSBHJpY2gQAQ=="), Base64.decode("CkAIUhIgjY+yjcB1fArFRi26YEYA7BeLB3tUgJK6I9GKMWhjN3QaBBCgjQYggIC6u8guKAPiBgoKBhIEcmljaBABEkCKcsPrOA/Pp1aeI0uKaXwb4TFvAxoXOksJLboVftMLLZQ9NWadkYPh9pc3Q2O+467DsbmvnnFGrObYnQH6b5eB")),
+                //{"senderPublicKey":"AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV","amount":1,"sender":"3MsX9C2MzzxE4ySF5aYcJoaiPfkyxZMg4cW","feeAssetId":null,"chainId":82,"proofs":["3mYdtrBDiizLESUQ88ZF3Bi9Xt8nM4FwYpDPVfSA5JMHHKs58ZirSG1eXuhwB2qPLQq8VXm7QRubHHuxiJXUcFq2"],"fee":100000,"recipient":"alias:R:rich","id":"65jwmmr3Yb3z2iNUMSUQuqF7PRPckhB8Z7MUgQiBXxLh","type":8,"version":3,"timestamp":1600000000000}
+                arguments(3, maxAlias, Long.MAX_VALUE, Proof.list(Proof.as("3rAeZ2PVGxKMjHVfetxLxKeaTAmYCM5AddPzAQ5BhD6iia2d1snAT2pF5grZm7jHWuAFJ2ZxP9VyvzvPv4QwkprL")), TxId.id("5XXAMNKLxEy3a5Ews3cr4Vzaiw6UTuRUffQTmkDxwpbq"), Base64.decode("CFISII2Pso3AdXwKxUYtumBGAOwXiwd7VICSuiPRijFoYzd0GgQQoI0GIICAurvILigD4gYsCiASHl9yaWNoLWFjY291bnQud2l0aEAzMF9zeW1ib2xzXxD//////////38="), Base64.decode("CmIIUhIgjY+yjcB1fArFRi26YEYA7BeLB3tUgJK6I9GKMWhjN3QaBBCgjQYggIC6u8guKAPiBiwKIBIeX3JpY2gtYWNjb3VudC53aXRoQDMwX3N5bWJvbHNfEP//////////fxJAjm7kwi6bNKy5edF9kur+ApzwKVpZaWZvcSKRdG+SfnjSbVfR/i2Nf6hSiTRS3BUJz2LilsudZhhZbRGX8NFvgQ==")),
+                //{"senderPublicKey":"AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV","amount":9223372036854775807,"sender":"3MsX9C2MzzxE4ySF5aYcJoaiPfkyxZMg4cW","feeAssetId":null,"chainId":82,"proofs":["3rAeZ2PVGxKMjHVfetxLxKeaTAmYCM5AddPzAQ5BhD6iia2d1snAT2pF5grZm7jHWuAFJ2ZxP9VyvzvPv4QwkprL"],"fee":100000,"recipient":"alias:R:_rich-account.with@30_symbols_","id":"5XXAMNKLxEy3a5Ews3cr4Vzaiw6UTuRUffQTmkDxwpbq","type":8,"version":3,"timestamp":1600000000000}
+                arguments(3, address, Long.MAX_VALUE, Proof.list(Proof.as("4a5cVikAXSL8aeZUNwWxmjD9yuwQ8trjf6F3SeoXJjcNw3VQ15SzJTibAkoS96LoZ9hhhGuhgzN8HqxNBkpKcXW7")), TxId.id("96peWN7hJLzTRiT68VLxgZtAnw6gHWzX7P9mqmM2B56E"), Base64.decode("CFISII2Pso3AdXwKxUYtumBGAOwXiwd7VICSuiPRijFoYzd0GgQQoI0GIICAurvILigD4gYiChYKFCeJyYXTXWfWhdwOmLovIW2Gvo+8EP//////////fw=="), Base64.decode("ClgIUhIgjY+yjcB1fArFRi26YEYA7BeLB3tUgJK6I9GKMWhjN3QaBBCgjQYggIC6u8guKAPiBiIKFgoUJ4nJhdNdZ9aF3A6Yui8hbYa+j7wQ//////////9/EkCyk9gE97j15foO+AuvEb1CqFw2X9z/rA9VbVVVJvTWwJzsxPA61+YLeWHgxMyOsCgLzvrohXERM/TxLTllf9iI"))
+                //{"senderPublicKey":"AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV","amount":9223372036854775807,"sender":"3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF","feeAssetId":null,"chainId":82,"proofs":["4a5cVikAXSL8aeZUNwWxmjD9yuwQ8trjf6F3SeoXJjcNw3VQ15SzJTibAkoS96LoZ9hhhGuhgzN8HqxNBkpKcXW7"],"fee":100000,"recipient":"3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF","id":"96peWN7hJLzTRiT68VLxgZtAnw6gHWzX7P9mqmM2B56E","type":8,"version":3,"timestamp":1600000000000}
+        );
+    }
+
+    @ParameterizedTest(name = "{index}: v{0} to {1} of {2} wavelets")
     @MethodSource("transactionsProvider")
     void leaseTransaction(int version, Recipient recipient, long amount, List<Proof> proofs, TxId expectedId, byte[] expectedBody, byte[] expectedBytes) throws IOException {
         LeaseTransaction tx = LeaseTransaction
@@ -40,9 +62,9 @@ public class TestLeaseTransaction {
         proofs.forEach(p -> tx.proofs().add(p));
 
         assertAll("check bytes",
-                () -> assertThat(tx.id()).isEqualTo(expectedId),
                 () -> assertThat(tx.bodyBytes()).isEqualTo(expectedBody),
-                () -> assertThat(tx.toBytes()).isEqualTo(expectedBytes)
+                () -> assertThat(tx.toBytes()).isEqualTo(expectedBytes),
+                () -> assertThat(tx.id()).isEqualTo(expectedId)
         );
 
         LeaseTransaction deserTx = LeaseTransaction.fromBytes(tx.toBytes());
@@ -61,29 +83,10 @@ public class TestLeaseTransaction {
                 () -> assertThat(deserTx.timestamp()).isEqualTo(tx.timestamp()),
                 () -> assertThat(deserTx.proofs()).isEqualTo(tx.proofs()),
 
-                () -> assertThat(deserTx.id()).isEqualTo(expectedId),
                 () -> assertThat(deserTx.bodyBytes()).isEqualTo(expectedBody),
-                () -> assertThat(deserTx.toBytes()).isEqualTo(expectedBytes)
+                () -> assertThat(deserTx.toBytes()).isEqualTo(expectedBytes),
+                () -> assertThat(deserTx.id()).isEqualTo(expectedId)
         );
-    }
-
-    static Stream<Arguments> transactionsProvider() {
-        return Stream.of(
-                arguments(3, recipient, Long.MAX_VALUE, Proof.list(Proof.as("ZyV6cBzUFEBQ6wDyzj689KUBXSTahGeoec6GTonM9CJWc9LMEHXy7d51f4Mysk78zVnkrjuF539pvEJBV2uL4nP")), TxId.id("D2H9GTZ1F6fViJibjimJd62prJCh3WhXpwa8gkf3JTfd"), Base64.decode("CFISII2Pso3AdXwKxUYtumBGAOwXiwd7VICSuiPRijFoYzd0GgQQoI0GIJyQm/OZLigD4gYiChYKFCeJyYXTXWfWhdwOmLovIW2Gvo+8EP//////////fw=="), Base64.decode("ClgIUhIgjY+yjcB1fArFRi26YEYA7BeLB3tUgJK6I9GKMWhjN3QaBBCgjQYgnJCb85kuKAPiBiIKFgoUJ4nJhdNdZ9aF3A6Yui8hbYa+j7wQ//////////9/EkAcb3c/UoHj5Cm5xcJZ5cf3dHbfswtfxPpujeBJq5b3M6G6hAy3htBhujUcc3X613p020xfat3whx07IxGqDeaM"))
-        );
-    }
-
-    static PublicKey sender = PublicKey.as("AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV");
-    static Address address = sender.address(Waves.chainId); // 3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF
-    static Recipient recipient = Recipient.as(address);
-
-    static long timestamp = 1600000000000L;
-
-    //String json = "{\"senderPublicKey\":\"AXbaBkJNocyrVpwqTzD4TpUY8fQ6eeRto9k1m2bNCzXV\",\"amount\":9223372036854775807,\"sender\":\"3MsX9C2MzzxE4ySF5aYcJoaiPfkyxZMg4cW\",\"feeAssetId\":null,\"chainId\":82,\"proofs\":[\"ZyV6cBzUFEBQ6wDyzj689KUBXSTahGeoec6GTonM9CJWc9LMEHXy7d51f4Mysk78zVnkrjuF539pvEJBV2uL4nP\"],\"fee\":100000,\"recipient\":\"3M4qwDomRabJKLZxuXhwfqLApQkU592nWxF\",\"id\":\"D2H9GTZ1F6fViJibjimJd62prJCh3WhXpwa8gkf3JTfd\",\"type\":8,\"version\":3,\"timestamp\":1587500468252}";
-
-    @BeforeAll
-    static void beforeAll() {
-        Waves.chainId = 'R';
     }
 
     /*@Test
