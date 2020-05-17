@@ -10,6 +10,7 @@ import im.mak.waves.transactions.common.Alias;
 import im.mak.waves.transactions.common.Proof;
 import im.mak.waves.transactions.common.Recipient;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -18,13 +19,53 @@ import static im.mak.waves.crypto.Bytes.of;
 
 public class LegacyBinarySerializer {
 
-//    todo
     public static byte[] bodyBytes(Transaction tx) {
-        return Bytes.empty();
+        byte[] result = Bytes.empty();
+        try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+
+            if (tx instanceof LeaseTransaction) {
+                LeaseTransaction ltx = (LeaseTransaction) tx;
+                if (ltx.version() > 2)
+                    throw new RuntimeException("not legacy"); //todo what an exception is better?
+
+                boolean withProofs = ltx.version() == 2;
+
+                stream.write(Bytes.of((byte) ltx.type()));
+                if (withProofs)
+                    stream.write(Bytes.of((byte) ltx.version(), (byte) 0));
+
+                stream.write(ltx.sender().bytes());
+                stream.write(recipientToBytes(ltx.recipient()));
+                stream.write(Bytes.fromLong(ltx.amount()));
+                stream.write(Bytes.fromLong(ltx.fee()));
+                stream.write(Bytes.fromLong(ltx.timestamp()));
+            } //todo other types
+
+            result = stream.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace(); //todo
+        }
+
+        return result;
     }
 
     public static byte[] bytes(Transaction tx) {
-        return Bytes.empty();
+        byte[] result = Bytes.empty();
+        try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+            if (tx instanceof LeaseTransaction) {
+                LeaseTransaction ltx = (LeaseTransaction) tx;
+                boolean withProofs = ltx.version() == 2;
+                if (withProofs)
+                    stream.write(Bytes.of((byte) 0));
+                stream.write(ltx.bodyBytes());
+                stream.write(proofsToBytes(ltx.proofs(), withProofs));
+
+                result = stream.toByteArray();
+            } //todo other types
+        } catch (IOException e) {
+            e.printStackTrace(); //todo
+        }
+        return result;
     }
 
     public static Transaction fromBytes(byte[] bytes) throws IOException {
@@ -53,21 +94,17 @@ public class LegacyBinarySerializer {
     }
 
     private static LeaseTransaction lease(ByteReader data, int version, boolean withProofs) throws IOException {
-        if (withProofs && data.read() != 0) throw new IOException("Reserved field must be 0");
+        if (withProofs && data.read() != 0)
+            throw new IOException("Reserved field must be 0");
+
         PublicKey sender = PublicKey.as(data.read(32)); //todo PublicKey.LENGTH
         Recipient recipient = readRecipient(data);
         long amount = data.readLong();
         long fee = data.readLong();
         long timestamp = data.readLong();
         List<Proof> proofs = readProofs(data, withProofs);
-        LeaseTransaction tx = LeaseTransaction
-                .builder(recipient, amount)
-                .version(version)
-                .chainId(recipient.chainId())
-                .sender(sender)
-                .fee(fee)
-                .timestamp(timestamp)
-                .get();
+
+        LeaseTransaction tx = new LeaseTransaction(sender, recipient, amount, recipient.chainId(), fee, timestamp, version);
         proofs.forEach(p -> tx.proofs().add(p)); //todo `Proofs extends List` or move proofs to builder
         return tx;
     }
@@ -81,17 +118,43 @@ public class LegacyBinarySerializer {
         } else throw new IOException("Unknown recipient type");
     }
 
+    private static byte[] recipientToBytes(Recipient recipient) {
+        if (recipient.isAlias())
+            return Bytes.concat(
+                    Bytes.of((byte) 2, recipient.chainId()),
+                    Bytes.toSizedByteArray(recipient.alias().value().getBytes()));
+        else
+            return recipient.address().bytes();
+    }
+
     private static List<Proof> readProofs(ByteReader data, boolean withProofs) throws IOException {
         if (withProofs) {
             byte version = data.read(); //todo Proofs.VERSION = 1
-            if (version != 1) throw new IOException("Wrong proofs version " + version + " but " + 1 + " expected");
-            ByteReader proofs = new ByteReader(data.readArray());
+            if (version != 1)
+                throw new IOException("Wrong proofs version " + version + " but " + 1 + " expected");
+
             List<Proof> result = Proof.emptyList();
-            while (proofs.hasNext())
-                result.add(Proof.as(proofs.readArray()));
+            short proofsCount = data.readShort();
+            for (short i = 0; i < proofsCount; i++)
+                result.add(Proof.as(data.readArray()));
+
             return result;
         } else {
             return Proof.list(Proof.as(data.read(64)));
+        }
+    }
+
+    private static byte[] proofsToBytes(List<Proof> proofs, boolean withProofs) {
+        if (withProofs) {
+            byte[] proofsVersion = Bytes.of((byte) 1);
+            byte[] proofsBytes = Bytes.fromShort((short) proofs.size());
+            for (Proof proof : proofs)
+                proofsBytes = Bytes.concat(proofsBytes, Bytes.toSizedByteArray(proof.bytes()));
+            return Bytes.concat(proofsVersion, proofsBytes);
+        } else {
+            if (proofs.size() != 1)
+                throw new IllegalArgumentException("Transaction of this type and version must have only 1 proof");
+            return proofs.get(0).bytes();
         }
     }
 

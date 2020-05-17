@@ -19,8 +19,12 @@ public class LeaseTransaction extends Transaction {
     private final Recipient recipient;
     private final long amount;
 
-    public LeaseTransaction(PublicKey sender, Recipient recipient, long amount, byte chainId, long fee, long timestamp, List<Proof> proofs) {
-        super(TYPE, LATEST_VERSION, chainId, sender, fee, Asset.WAVES, timestamp, proofs);
+    public LeaseTransaction(PublicKey sender, Recipient recipient, long amount, byte chainId, long fee, long timestamp, int version) {
+        this(sender, recipient, amount, chainId, fee, timestamp, version, Proof.emptyList());
+    }
+
+    public LeaseTransaction(PublicKey sender, Recipient recipient, long amount, byte chainId, long fee, long timestamp, int version, List<Proof> proofs) {
+        super(TYPE, version, chainId, sender, fee, Asset.WAVES, timestamp, proofs);
 
         this.recipient = recipient;
         this.amount = amount;
@@ -30,7 +34,7 @@ public class LeaseTransaction extends Transaction {
         return (LeaseTransaction) Transaction.fromBytes(bytes);
     }
 
-    //todo rename each builder to "lease()", "transfer()" and etc?
+    //todo rename each builder to "lease()", "transfer()" and etc? Or "with"?
     public static LeaseTransactionBuilder builder(Recipient recipient, long amount) {
         return new LeaseTransactionBuilder(recipient, amount);
     }
@@ -69,7 +73,7 @@ public class LeaseTransaction extends Transaction {
         }
 
         protected LeaseTransaction _build() {
-            return new LeaseTransaction(sender, recipient, amount, chainId, fee, timestamp, Proof.emptyList());
+            return new LeaseTransaction(sender, recipient, amount, chainId, fee, timestamp, version, Proof.emptyList());
         }
     }
 

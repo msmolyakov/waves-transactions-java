@@ -29,6 +29,8 @@ public class Transaction implements WithBody {
         return BinarySerializer.fromBytes(bytes);
     }
 
+    //todo method to calculate fee/size coefficient (and fee by the target coefficient)
+
     //TODO additional constructor for all children only with mandatory fields
     protected Transaction(int type, int version, byte chainId, PublicKey sender, long fee, Asset feeAsset, long timestamp, List<Proof> proofs) {
         this.type = type;
@@ -88,7 +90,7 @@ public class Transaction implements WithBody {
     //TODO implement clone in crypto lib
     //TODO this+children: hashCode, equals, toString
     //TODO basic validations in builder/constructor
-
+    //TODO toProtobuf() and fromProtobuf() for SignedTransaction
 
     @Override
     public boolean equals(Object o) {
@@ -129,6 +131,7 @@ public class Transaction implements WithBody {
         }
 
         private BUILDER builder() {
+            //noinspection unchecked
             return (BUILDER) this;
         }
 

@@ -79,7 +79,7 @@ public class BinarySerializer {
         TransactionOuterClass.SignedTransaction signed;
         try {
             signed = TransactionOuterClass.SignedTransaction.parseFrom(bytes);
-            if (!signed.hasTransaction())
+            if (!signed.isInitialized())
                 throw new InvalidProtocolBufferException("Parsed bytes are not a Transaction");
         } catch (InvalidProtocolBufferException e) {
             return LegacyBinarySerializer.fromBytes(bytes);
