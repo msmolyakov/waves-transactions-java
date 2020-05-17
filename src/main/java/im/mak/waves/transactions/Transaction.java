@@ -1,6 +1,6 @@
 package im.mak.waves.transactions;
 
-import com.google.protobuf.InvalidProtocolBufferException;
+import im.mak.waves.crypto.Bytes;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.transactions.common.Asset;
 import im.mak.waves.transactions.common.Proof;
@@ -15,8 +15,8 @@ import java.util.Objects;
 
 public class Transaction implements WithBody {
 
-    private final int type; //TODO int, short, byte?
-    private final int version; //TODO int, short, byte?
+    private final int type;
+    private final int version;
     private final byte chainId;
     private final PublicKey sender;
     private final long fee;
@@ -31,7 +31,6 @@ public class Transaction implements WithBody {
 
     //todo method to calculate fee/size coefficient (and fee by the target coefficient)
 
-    //TODO additional constructor for all children only with mandatory fields
     protected Transaction(int type, int version, byte chainId, PublicKey sender, long fee, Asset feeAsset, long timestamp, List<Proof> proofs) {
         this.type = type;
         this.version = version;
@@ -56,7 +55,7 @@ public class Transaction implements WithBody {
     }
 
     public PublicKey sender() {
-        return sender; //todo clone
+        return sender;
     }
 
     public long fee() {
@@ -64,7 +63,7 @@ public class Transaction implements WithBody {
     }
 
     public Asset feeAsset() {
-        return feeAsset; //todo clone
+        return feeAsset;
     }
 
     public long timestamp() {
@@ -87,7 +86,7 @@ public class Transaction implements WithBody {
         return BinarySerializer.toBytes(this);
     }
 
-    //TODO implement clone in crypto lib
+    //TODO implement clone in crypto lib and in all getters and constructors
     //TODO this+children: hashCode, equals, toString
     //TODO basic validations in builder/constructor
     //TODO toProtobuf() and fromProtobuf() for SignedTransaction
@@ -97,21 +96,13 @@ public class Transaction implements WithBody {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return type == that.type &&
-                version == that.version &&
-                chainId == that.chainId &&
-                fee == that.fee &&
-                timestamp == that.timestamp &&
-                sender.equals(that.sender) &&
-                feeAsset.equals(that.feeAsset) &&
-                proofs.equals(that.proofs);
-        //todo bodyBytes?
+        return Bytes.equal(this.bodyBytes(), that.bodyBytes())
+                && this.proofs.equals(that.proofs);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, version, chainId, sender, fee, feeAsset, timestamp, proofs);
-        //todo bodyBytes?
+        return Objects.hash(this.bodyBytes(), proofs);
     }
 
     protected static abstract class TransactionBuilder
@@ -135,7 +126,7 @@ public class Transaction implements WithBody {
             return (BUILDER) this;
         }
 
-        //todo how to hide from public
+        //todo hide from public
         public BUILDER version(int version) {
             this.version = version;
             return builder();
@@ -148,7 +139,7 @@ public class Transaction implements WithBody {
 
         //todo require to set, at least sender
         public BUILDER sender(PublicKey publicKey) {
-            this.sender = publicKey; //todo clone
+            this.sender = publicKey;
             return builder();
         }
 
@@ -157,7 +148,7 @@ public class Transaction implements WithBody {
             return builder();
         }
 
-        //todo how to hide from public?
+        //todo hide from public
         public BUILDER feeAsset(Asset asset) {
             this.feeAsset = asset;
             return builder();

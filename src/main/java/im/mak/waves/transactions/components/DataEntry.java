@@ -6,7 +6,7 @@ public class DataEntry {
 
     private String key;
     private EntryType type;
-    private Object value; //TODO чо делать-то?
+    private Object value; //TODO how to store better?
 
     public DataEntry(String key, byte[] binary) {
         this.key = key;

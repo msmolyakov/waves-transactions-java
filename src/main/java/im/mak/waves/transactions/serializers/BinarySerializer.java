@@ -27,7 +27,7 @@ public class BinarySerializer {
 
         if (tx.version() == protobufVersion) {
             TransactionOuterClass.Transaction.Builder protoBuilder = TransactionOuterClass.Transaction.newBuilder()
-                    .setVersion(tx.version()) //todo а если создали объект из старой версии и с пруфом?
+                    .setVersion(tx.version())
                     .setChainId(tx.chainId())
                     .setSenderPublicKey(ByteString.copyFrom(tx.sender().bytes()))
                     .setFee(AmountOuterClass.Amount.newBuilder()
@@ -56,7 +56,6 @@ public class BinarySerializer {
     }
 
     public static byte[] toBytes(Transaction tx) {
-        //todo proto version or LegacyBinarySerializer.bytes(tx)
         TransactionOuterClass.Transaction protoTx;
         try {
             protoTx = TransactionOuterClass.Transaction.parseFrom(tx.bodyBytes());
@@ -91,7 +90,7 @@ public class BinarySerializer {
         if (tx.hasLease()) {
             TransactionOuterClass.LeaseTransactionData lease = tx.getLease();
             LeaseTransaction ltx = LeaseTransaction
-                    .builder(fromProto(lease.getRecipient(), (byte) tx.getChainId()), lease.getAmount())
+                    .with(fromProto(lease.getRecipient(), (byte) tx.getChainId()), lease.getAmount())
                     .version(tx.getVersion())
                     .chainId((byte) tx.getChainId())
                     .sender(PublicKey.as(tx.getSenderPublicKey().toByteArray()))

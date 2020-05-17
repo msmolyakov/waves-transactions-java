@@ -34,13 +34,12 @@ public class LeaseTransaction extends Transaction {
         return (LeaseTransaction) Transaction.fromBytes(bytes);
     }
 
-    //todo rename each builder to "lease()", "transfer()" and etc? Or "with"?
-    public static LeaseTransactionBuilder builder(Recipient recipient, long amount) {
+    public static LeaseTransactionBuilder with(Recipient recipient, long amount) {
         return new LeaseTransactionBuilder(recipient, amount);
     }
 
     public Recipient recipient() {
-        return recipient; //todo clone
+        return recipient;
     }
 
     public long amount() {
@@ -68,7 +67,7 @@ public class LeaseTransaction extends Transaction {
 
         protected LeaseTransactionBuilder(Recipient recipient, long amount) {
             super(LATEST_VERSION, MIN_FEE);
-            this.recipient = recipient; //todo clone
+            this.recipient = recipient;
             this.amount = amount;
         }
 

@@ -1,12 +1,10 @@
 package im.mak.waves.transactions;
 
-import im.mak.waves.crypto.Bytes;
 import im.mak.waves.crypto.account.Address;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.crypto.base.Base64;
 import im.mak.waves.transactions.common.*;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -59,7 +57,7 @@ public class TestLeaseTransaction {
     @MethodSource("transactionsProvider")
     void leaseTransaction(int version, Recipient recipient, long amount, List<Proof> proofs, TxId expectedId, byte[] expectedBody, byte[] expectedBytes) throws IOException {
         LeaseTransaction builtTx = LeaseTransaction
-                .builder(recipient, amount)
+                .with(recipient, amount)
                 .chainId(Waves.chainId)
                 .fee(LeaseTransaction.MIN_FEE)
                 .timestamp(timestamp)

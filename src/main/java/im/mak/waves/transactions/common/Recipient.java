@@ -44,12 +44,6 @@ public class Recipient {
         return this.alias;
     }
 
-//todo
-//    public RecipientOuterClass.Recipient toProto() {
-//
-//    }
-
-
     @Override
     public String toString() {
         return isAlias() ? alias.toString() : address.toString();

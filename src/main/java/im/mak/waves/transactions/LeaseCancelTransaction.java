@@ -25,7 +25,7 @@ public class LeaseCancelTransaction extends Transaction {
     }
 
     public Base58 leaseId() {
-        return leaseId; //todo clone
+        return leaseId;
     }
 
     //TODO hashCode, equals, toString
@@ -39,7 +39,7 @@ public class LeaseCancelTransaction extends Transaction {
         }
 
         public LeaseCancelTransactionBuilder leaseId(Base58 leaseId) {
-            this.leaseId = leaseId; //todo clone
+            this.leaseId = leaseId;
             return this;
         }
 

@@ -25,7 +25,7 @@ public class Proof extends Base58Encoded {
     }
 
     public static List<Proof> list(Proof... proofs) {
-        return new ArrayList<>(Arrays.asList(proofs)); //todo copy
+        return new ArrayList<>(Arrays.asList(proofs));
     }
 
     public static Proof as(byte[] proof) {
