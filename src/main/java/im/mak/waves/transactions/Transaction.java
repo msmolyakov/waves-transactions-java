@@ -1,5 +1,6 @@
 package im.mak.waves.transactions;
 
+import com.wavesplatform.protobuf.transaction.TransactionOuterClass;
 import im.mak.waves.crypto.Bytes;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.transactions.common.Asset;
@@ -7,13 +8,14 @@ import im.mak.waves.transactions.common.Proof;
 import im.mak.waves.transactions.common.WithBody;
 import im.mak.waves.transactions.common.Waves;
 import im.mak.waves.transactions.serializers.BinarySerializer;
+import im.mak.waves.transactions.serializers.ProtobufConverter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Transaction implements WithBody {
+public abstract class Transaction implements WithBody {
 
     private final int type;
     private final int version;
@@ -86,10 +88,13 @@ public class Transaction implements WithBody {
         return BinarySerializer.toBytes(this);
     }
 
+    public TransactionOuterClass.SignedTransaction toProtobuf() {
+        return ProtobufConverter.toProtobuf(this);
+    }
+
     //TODO implement clone in crypto lib and in all getters and constructors
     //TODO this+children: hashCode, equals, toString
     //TODO basic validations in builder/constructor
-    //TODO toProtobuf() and fromProtobuf() for SignedTransaction
 
     @Override
     public boolean equals(Object o) {

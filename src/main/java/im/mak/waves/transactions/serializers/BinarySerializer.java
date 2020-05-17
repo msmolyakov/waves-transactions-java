@@ -2,8 +2,6 @@ package im.mak.waves.transactions.serializers;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.wavesplatform.protobuf.AmountOuterClass;
-import com.wavesplatform.protobuf.transaction.RecipientOuterClass;
 import com.wavesplatform.protobuf.transaction.TransactionOuterClass;
 import im.mak.waves.crypto.account.PublicKey;
 import im.mak.waves.transactions.LeaseCancelTransaction;
@@ -15,7 +13,7 @@ import im.mak.waves.transactions.common.Proof;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import static im.mak.waves.transactions.serializers.ProtobufConverter.fromProto;
+import static im.mak.waves.transactions.serializers.ProtobufConverter.recipientFromProto;
 
 public class BinarySerializer {
 
@@ -26,52 +24,23 @@ public class BinarySerializer {
         //todo other types
 
         if (tx.version() == protobufVersion) {
-            TransactionOuterClass.Transaction.Builder protoBuilder = TransactionOuterClass.Transaction.newBuilder()
-                    .setVersion(tx.version())
-                    .setChainId(tx.chainId())
-                    .setSenderPublicKey(ByteString.copyFrom(tx.sender().bytes()))
-                    .setFee(AmountOuterClass.Amount.newBuilder()
-                            .setAmount(tx.fee())
-                            .setAssetId(ByteString.copyFrom(
-                                    tx.feeAsset().bytes()))
-                            .build())
-                    .setTimestamp(tx.timestamp());
-
-            if (tx instanceof LeaseTransaction) {
-                LeaseTransaction ltx = (LeaseTransaction) tx;
-                RecipientOuterClass.Recipient recipient = ltx.recipient().isAlias()
-                        ? RecipientOuterClass.Recipient.newBuilder().setAlias(ltx.recipient().alias().value()).build()
-                        : RecipientOuterClass.Recipient.newBuilder().setPublicKeyHash(ByteString.copyFrom(
-                        ltx.recipient().address().publicKeyHash())).build();
-                protoBuilder.setLease(TransactionOuterClass.LeaseTransactionData.newBuilder()
-                        .setRecipient(recipient)
-                        .setAmount(ltx.amount())
-                        .build());
-            } //todo other types
-
-            return protoBuilder.build().toByteArray();
+            return ProtobufConverter.toUnsignedProtobuf(tx).toByteArray();
         } else {
             return LegacyBinarySerializer.bodyBytes(tx);
         }
     }
 
     public static byte[] toBytes(Transaction tx) {
-        TransactionOuterClass.Transaction protoTx;
-        try {
-            protoTx = TransactionOuterClass.Transaction.parseFrom(tx.bodyBytes());
-        } catch (InvalidProtocolBufferException e) {
+        int protobufVersion = 0;
+        if (tx instanceof LeaseTransaction) protobufVersion = LeaseTransaction.LATEST_VERSION;
+        else if (tx instanceof LeaseCancelTransaction) protobufVersion = LeaseCancelTransaction.LATEST_VERSION;
+        //todo other types
+
+        if (tx.version() == protobufVersion) {
+            return tx.toProtobuf().toByteArray();
+        } else {
             return LegacyBinarySerializer.bytes(tx);
         }
-
-        TransactionOuterClass.SignedTransaction signedProtoTX = TransactionOuterClass.SignedTransaction.newBuilder()
-                .setTransaction(protoTx)
-                .addAllProofs(tx.proofs()
-                        .stream()
-                        .map(p -> ByteString.copyFrom(p.bytes()))
-                        .collect(Collectors.toList()))
-                .build();
-
-        return signedProtoTX.toByteArray();
     }
 
     public static Transaction fromBytes(byte[] bytes) throws IOException {
@@ -90,7 +59,7 @@ public class BinarySerializer {
         if (tx.hasLease()) {
             TransactionOuterClass.LeaseTransactionData lease = tx.getLease();
             LeaseTransaction ltx = LeaseTransaction
-                    .with(fromProto(lease.getRecipient(), (byte) tx.getChainId()), lease.getAmount())
+                    .with(recipientFromProto(lease.getRecipient(), (byte) tx.getChainId()), lease.getAmount())
                     .version(tx.getVersion())
                     .chainId((byte) tx.getChainId())
                     .sender(PublicKey.as(tx.getSenderPublicKey().toByteArray()))
